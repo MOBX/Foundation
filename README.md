@@ -6,4 +6,5 @@ Java commons utils Foundation libs
 * simplecache
 * json
 * threadPool
+* encrypt tools
 * other tools
