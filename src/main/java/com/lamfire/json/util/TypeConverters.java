@@ -1,26 +1,15 @@
-
 package com.lamfire.json.util;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.lamfire.json.JSONException;
 import com.lamfire.json.deserializer.FieldDeserializer;
 import com.lamfire.json.parser.ParserConfig;
 
-@SuppressWarnings({ "unchecked"})
+@SuppressWarnings({ "unchecked" })
 public class TypeConverters {
 
     public static final String castToString(Object value) {
@@ -51,7 +40,8 @@ public class TypeConverters {
         throw new JSONException("can not cast to byte, value : " + value);
     }
 
-    public static final byte[] castToByteArray(Object value){
+    @SuppressWarnings("rawtypes")
+    public static final byte[] castToByteArray(Object value) {
         if (value == null) {
             return null;
         }
@@ -62,11 +52,11 @@ public class TypeConverters {
             byte[] array = new byte[collection.size()];
             for (Object item : collection) {
                 byte obj = castToByte(item);
-                array[index] =obj;
+                array[index] = obj;
                 index++;
             }
 
-            return   array;
+            return array;
         }
         throw new JSONException("can not cast to byte array, value : " + value);
     }
@@ -393,7 +383,7 @@ public class TypeConverters {
         return cast(obj, clazz, ParserConfig.getGlobalInstance());
     }
 
- 
+    @SuppressWarnings("rawtypes")
     public static final <T> T cast(Object obj, Class<T> clazz, ParserConfig mapping) {
         if (obj == null) {
             return null;
@@ -501,7 +491,7 @@ public class TypeConverters {
         throw new JSONException("can not cast to : " + clazz.getName());
     }
 
- 
+    @SuppressWarnings("rawtypes")
     public static final <T> T castToEnum(Object obj, Class<T> clazz, ParserConfig mapping) {
         try {
             if (obj instanceof String) {
@@ -512,7 +502,7 @@ public class TypeConverters {
 
                 return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
             }
-            
+
             if (obj instanceof Number) {
                 int ordinal = ((Number) obj).intValue();
 
@@ -532,7 +522,6 @@ public class TypeConverters {
         throw new JSONException("can not cast to : " + clazz.getName());
     }
 
- 
     public static final <T> T cast(Object obj, Type type, ParserConfig mapping) {
         if (obj == null) {
             return null;
@@ -556,7 +545,7 @@ public class TypeConverters {
         throw new JSONException("can not cast to : " + type);
     }
 
- 
+    @SuppressWarnings("rawtypes")
     public static final <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping) {
         Type rawTye = type.getRawType();
 
@@ -603,7 +592,7 @@ public class TypeConverters {
         throw new JSONException("can not cast to : " + type);
     }
 
- 
+    @SuppressWarnings("rawtypes")
     public static final <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig mapping) {
         try {
             if (clazz == StackTraceElement.class) {
@@ -652,7 +641,7 @@ public class TypeConverters {
 
             return object;
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             throw new JSONException(e.getMessage(), e);
         }
     }

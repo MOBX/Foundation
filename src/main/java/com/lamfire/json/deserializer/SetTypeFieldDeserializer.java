@@ -1,17 +1,14 @@
 package com.lamfire.json.deserializer;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
+
 import com.lamfire.json.JSONException;
 import com.lamfire.json.parser.*;
 import com.lamfire.json.util.FieldInfo;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
-
-@SuppressWarnings({ "unchecked"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class SetTypeFieldDeserializer extends FieldDeserializer {
 
     private final Type         itemType;

@@ -1,8 +1,6 @@
 package com.lamfire.json.parser;
 
 public class JSONToken {
-
-    
     //
     public final static int ERROR                = 1;
     //
@@ -41,7 +39,7 @@ public class JSONToken {
     public final static int IDENTIFIER           = 18;
     //
     public final static int FIELD_NAME           = 19;
-    
+
     public final static int EOF                  = 20;
 
     public static String name(int value) {

@@ -14,7 +14,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Class<?> fieldClass;
     private final Type     fieldType;
 
-    public FieldInfo(String name, Method method, Field field){
+    public FieldInfo(String name, Method method, Field field) {
         this.name = name;
         this.method = method;
         this.field = field;

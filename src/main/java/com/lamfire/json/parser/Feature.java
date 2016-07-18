@@ -1,6 +1,5 @@
 package com.lamfire.json.parser;
 
-
 public enum Feature {
     /**
 	 * 
@@ -36,7 +35,7 @@ public enum Feature {
      * 
      */
     UseBigDecimal,
-    
+
     /**
      * @since 1.1.2
      */
@@ -46,14 +45,13 @@ public enum Feature {
      * 
      */
     SortFeidFastMatch,
-    
+
     /**
      * 
      */
-    DisableASM
-    ;
+    DisableASM;
 
-    private Feature(){
+    private Feature() {
         mask = (1 << ordinal());
     }
 

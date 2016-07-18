@@ -1,22 +1,14 @@
 package com.lamfire.json.util;
 
-/**
- * Created with IntelliJ IDEA.
- * User: lamfire
- * Date: 14-7-11
- * Time: ÏÂÎç2:37
- * To change this template use File | Settings | File Templates.
- */
-public class SymbolTable
-{
-    public static final int DEFAULT_TABLE_SIZE = 128;
-    private final Entry[] buckets;
-    private final String[] symbols;
-    private final char[][] symbols_char;
-    private final int indexMask;
+public class SymbolTable {
 
-    public SymbolTable()
-    {
+    public static final int DEFAULT_TABLE_SIZE = 128;
+    private final Entry[]   buckets;
+    private final String[]  symbols;
+    private final char[][]  symbols_char;
+    private final int       indexMask;
+
+    public SymbolTable() {
         this(128);
     }
 
@@ -27,19 +19,16 @@ public class SymbolTable
         this.symbols_char = new char[tableSize][];
     }
 
-    public String addSymbol(String symbol)
-    {
+    public String addSymbol(String symbol) {
         return addSymbol(symbol.toCharArray(), 0, symbol.length(), symbol.hashCode());
     }
 
-    public String addSymbol(char[] buffer, int offset, int len)
-    {
+    public String addSymbol(char[] buffer, int offset, int len) {
         int hash = hash(buffer, offset, len);
         return addSymbol(buffer, offset, len, hash);
     }
 
-    public String addSymbol(char[] buffer, int offset, int len, int hash)
-    {
+    public String addSymbol(char[] buffer, int offset, int len, int hash) {
         int bucket = hash & this.indexMask;
 
         String sym = this.symbols[bucket];
@@ -57,10 +46,8 @@ public class SymbolTable
                     }
                 }
 
-                if (match)
-                    return sym;
-            }
-            else {
+                if (match) return sym;
+            } else {
                 match = false;
             }
         }
@@ -69,15 +56,14 @@ public class SymbolTable
             char[] characters = entry.characters;
             if ((len == characters.length) && (hash == entry.hashCode)) {
                 int i = 0;
-                while (true) if (i < len) {
-                    if (buffer[(offset + i)] != characters[i])
-                        break;
-                    i++; continue;
-                }
-                else
-                {
-                    return entry.symbol;
-                }
+                while (true)
+                    if (i < len) {
+                        if (buffer[(offset + i)] != characters[i]) break;
+                        i++;
+                        continue;
+                    } else {
+                        return entry.symbol;
+                    }
             }
         }
         Entry entry = new Entry(buffer, offset, len, hash, this.buckets[bucket]);
@@ -99,13 +85,13 @@ public class SymbolTable
         return h;
     }
 
-    protected static final class Entry
-    {
+    protected static final class Entry {
+
         public final String symbol;
-        public final int hashCode;
+        public final int    hashCode;
         public final char[] characters;
         public final byte[] bytes;
-        public Entry next;
+        public Entry        next;
 
         public Entry(char[] ch, int offset, int length, int hash, Entry next) {
             this.characters = new char[length];

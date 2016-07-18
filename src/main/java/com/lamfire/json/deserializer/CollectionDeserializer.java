@@ -10,12 +10,11 @@ import com.lamfire.json.JSONException;
 import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
-@SuppressWarnings({ "unchecked"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class CollectionDeserializer implements ObjectDeserializer {
 
     public final static CollectionDeserializer instance = new CollectionDeserializer();
 
- 
     public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             parser.getLexer().nextToken(JSONToken.COMMA);
@@ -37,7 +36,7 @@ public class CollectionDeserializer implements ObjectDeserializer {
                 }
             }
         }
-        
+
         if (list == null) {
             list = new ArrayList();
         }

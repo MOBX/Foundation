@@ -1,34 +1,27 @@
-
 package com.lamfire.json.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
-import com.lamfire.json.JSONString;
 import com.lamfire.json.JSONException;
+import com.lamfire.json.JSONString;
 import com.lamfire.json.JSONWriter;
 
 public class JSONSerializer {
 
     private final SerializeConfig config;
 
-    private final SerializeWriter   out;
+    private final SerializeWriter out;
 
-    private List<PropertyFilter>    propertyFilters = null;
-    private List<ValueFilter>       valueFilters    = null;
-    private List<NameFilter>        nameFilters     = null;
+    private List<PropertyFilter>  propertyFilters = null;
+    private List<ValueFilter>     valueFilters    = null;
+    private List<NameFilter>      nameFilters     = null;
 
-    private int                     indentCount     = 0;
-    private String                  indent          = "\t";
+    private int                   indentCount     = 0;
+    private String                indent          = "\t";
 
     public List<ValueFilter> getValueFilters() {
         if (valueFilters == null) {
@@ -85,19 +78,19 @@ public class JSONSerializer {
         return propertyFilters;
     }
 
-    public JSONSerializer(){
+    public JSONSerializer() {
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
     }
 
-    public JSONSerializer(SerializeWriter out){
+    public JSONSerializer(SerializeWriter out) {
         this(out, SerializeConfig.getGlobalInstance());
     }
 
-    public JSONSerializer(SerializeConfig mapping){
+    public JSONSerializer(SerializeConfig mapping) {
         this(new SerializeWriter(), mapping);
     }
 
-    public JSONSerializer(SerializeWriter out, SerializeConfig config){
+    public JSONSerializer(SerializeWriter out, SerializeConfig config) {
         this.out = out;
         this.config = config;
     }
@@ -216,5 +209,4 @@ public class JSONSerializer {
         }
         return writer;
     }
-
 }

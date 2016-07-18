@@ -5,17 +5,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.lamfire.json.JSONException;
-import com.lamfire.json.parser.DefaultExtJSONParser;
-import com.lamfire.json.parser.Feature;
-import com.lamfire.json.parser.JSONLexer;
-import com.lamfire.json.parser.JSONToken;
+import com.lamfire.json.parser.*;
 
-@SuppressWarnings({ "unchecked"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class ArrayListStringDeserializer implements ObjectDeserializer {
 
     public final static ArrayListStringDeserializer instance = new ArrayListStringDeserializer();
 
-    
     public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
         ArrayList list = new ArrayList();
 

@@ -22,8 +22,11 @@ import com.lamfire.json.JSONException;
 import com.lamfire.json.util.CharTypes;
 import com.lamfire.json.util.SymbolTable;
 
-//’‚∏ˆ¿‡£¨Œ™¡À–‘ƒ‹”≈ªØ◊ˆ¡À∫‹∂‡Ãÿ±¥¶¿Ì£°
-
+/**
+ * Ëøô‰∏™Á±ªÔºå‰∏∫‰∫ÜÊÄßËÉΩ‰ºòÂåñÂÅö‰∫ÜÂæàÂ§öÁâπÂà´Â§ÑÁêÜÔºÅ
+ * 
+ * @author zxc Jul 18, 2015 1:32:34 PM
+ */
 public class JSONScanner implements JSONLexer {
 
     public final static byte                 EOI      = 0x1A;
@@ -67,19 +70,19 @@ public class JSONScanner implements JSONLexer {
 
     private Calendar                         calendar = null;
 
-    public JSONScanner(String input){
+    public JSONScanner(String input) {
         this(input, JSON.DEFAULT_PARSER_FEATURE);
     }
 
-    public JSONScanner(String input, int features){
+    public JSONScanner(String input, int features) {
         this(input.toCharArray(), input.length(), features);
     }
 
-    public JSONScanner(char[] input, int inputLength){
+    public JSONScanner(char[] input, int inputLength) {
         this(input, inputLength, JSON.DEFAULT_PARSER_FEATURE);
     }
 
-    public JSONScanner(char[] input, int inputLength, int features){
+    public JSONScanner(char[] input, int inputLength, int features) {
         this.features = features;
 
         sbuf = sbufRef.get(); // new char[1024];
@@ -128,7 +131,7 @@ public class JSONScanner implements JSONLexer {
     }
 
     public static final boolean isWhitespace(char ch) {
-        // ◊®√≈µ˜’˚¡À≈–∂œÀ≥–Ú
+        // ‰∏ìÈó®Ë∞ÉÊï¥‰∫ÜÂà§Êñ≠È°∫Â∫è
         return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
     }
 
@@ -833,7 +836,7 @@ public class JSONScanner implements JSONLexer {
 
         return strVal;
     }
-    
+
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
@@ -864,7 +867,7 @@ public class JSONScanner implements JSONLexer {
                 strVal = symbolTable.addSymbol(buf, start, index - start - 1, hash);
                 break;
             }
-            
+
             hash = 31 * hash + ch;
 
             if (ch == '\\') {
@@ -1559,7 +1562,8 @@ public class JSONScanner implements JSONLexer {
 
         ch = buf[bp];
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI || ch == '\f' || ch == '\b') {
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+            || ch == '\f' || ch == '\b') {
             token = JSONToken.TRUE;
         } else {
             throw new JSONException("scan true error");
@@ -1581,7 +1585,8 @@ public class JSONScanner implements JSONLexer {
             }
             ch = buf[bp];
 
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI || ch == '\f' || ch == '\b') {
+            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+                || ch == '\f' || ch == '\b') {
                 token = JSONToken.NULL;
             } else {
                 throw new JSONException("scan true error");
@@ -1599,7 +1604,8 @@ public class JSONScanner implements JSONLexer {
         }
         ch = buf[bp];
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI || ch == '\f' || ch == '\b') {
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+            || ch == '\f' || ch == '\b') {
             token = JSONToken.NEW;
         } else {
             throw new JSONException("scan true error");
@@ -1625,7 +1631,8 @@ public class JSONScanner implements JSONLexer {
 
         ch = buf[bp];
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI || ch == '\f' || ch == '\b') {
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+            || ch == '\f' || ch == '\b') {
             token = JSONToken.FALSE;
         } else {
             throw new JSONException("scan false error");
@@ -1928,11 +1935,11 @@ public class JSONScanner implements JSONLexer {
     public final String numberString() {
         return new String(buf, np, sp);
     }
-    
+
     public float floatValue() {
         return Float.parseFloat(numberString());
     }
-    
+
     public double doubleValue() {
         return Double.parseDouble(numberString());
     }

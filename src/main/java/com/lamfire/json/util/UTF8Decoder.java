@@ -11,7 +11,7 @@ public class UTF8Decoder extends CharsetDecoder {
 
     private final static Charset charset = Charset.forName("UTF-8");
 
-    public UTF8Decoder(){
+    public UTF8Decoder() {
         super(charset, 1.0f, 1.0f);
     }
 
@@ -72,7 +72,8 @@ public class UTF8Decoder extends CharsetDecoder {
             case 4: // we don't care the speed here
                 b1 = src.get() & 0xff;
                 b2 = src.get() & 0xff;
-                if (b1 > 0xf4 || (b1 == 0xf0 && (b2 < 0x90 || b2 > 0xbf)) || (b1 == 0xf4 && (b2 & 0xf0) != 0x80) || isNotContinuation(b2)) return CoderResult.malformedForLength(1);
+                if (b1 > 0xf4 || (b1 == 0xf0 && (b2 < 0x90 || b2 > 0xbf)) || (b1 == 0xf4 && (b2 & 0xf0) != 0x80)
+                    || isNotContinuation(b2)) return CoderResult.malformedForLength(1);
                 if (isNotContinuation(src.get())) return CoderResult.malformedForLength(2);
                 return CoderResult.malformedForLength(3);
             default:
@@ -167,10 +168,10 @@ public class UTF8Decoder extends CharsetDecoder {
     }
 
     static final void updatePositions(Buffer src, int sp, Buffer dst, int dp) {
-//        src.position(sp - src.arrayOffset());
-//        dst.position(dp - dst.arrayOffset());
-      src.position(sp);
-      dst.position(dp);
+        // src.position(sp - src.arrayOffset());
+        // dst.position(dp - dst.arrayOffset());
+        src.position(sp);
+        dst.position(dp);
     }
 
     private static class Surrogate {

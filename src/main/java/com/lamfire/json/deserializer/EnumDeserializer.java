@@ -10,7 +10,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONLexer;
 import com.lamfire.json.parser.JSONToken;
 
-@SuppressWarnings({ "unchecked"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class EnumDeserializer implements ObjectDeserializer {
 
     private final Class<?>           enumClass;

@@ -5,12 +5,13 @@ import java.util.ArrayList;
 
 import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
-@SuppressWarnings({ "unchecked"})
+
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class ArrayListTypeDeserializer implements ObjectDeserializer {
 
     private Type itemType;
 
-    public ArrayListTypeDeserializer(Type type){
+    public ArrayListTypeDeserializer(Type type) {
         this.itemType = type;
     }
 
@@ -25,5 +26,4 @@ public class ArrayListTypeDeserializer implements ObjectDeserializer {
     public int getFastMatchToken() {
         return JSONToken.LBRACKET;
     }
-
 }

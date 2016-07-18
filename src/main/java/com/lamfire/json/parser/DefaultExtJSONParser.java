@@ -1,25 +1,15 @@
 package com.lamfire.json.parser;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.lamfire.json.JSONException;
-import com.lamfire.json.deserializer.DefaultObjectDeserializer;
-import com.lamfire.json.deserializer.IntegerDeserializer;
-import com.lamfire.json.deserializer.ObjectDeserializer;
-import com.lamfire.json.deserializer.StringDeserializer;
+import com.lamfire.json.deserializer.*;
 import com.lamfire.json.util.TypeConverters;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class DefaultExtJSONParser extends DefaultJSONParser {
 
     private DefaultObjectDeserializer  derializer       = new DefaultObjectDeserializer();
@@ -47,19 +37,19 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         primitiveClasses.add(String.class);
     }
 
-    public DefaultExtJSONParser(String input){
+    public DefaultExtJSONParser(String input) {
         this(input, ParserConfig.getGlobalInstance());
     }
 
-    public DefaultExtJSONParser(String input, ParserConfig mapping){
+    public DefaultExtJSONParser(String input, ParserConfig mapping) {
         super(input, mapping);
     }
 
-    public DefaultExtJSONParser(String input, ParserConfig mapping, int features){
+    public DefaultExtJSONParser(String input, ParserConfig mapping, int features) {
         super(input, mapping, features);
     }
 
-    public DefaultExtJSONParser(char[] input, int length, ParserConfig mapping, int features){
+    public DefaultExtJSONParser(char[] input, int length, ParserConfig mapping, int features) {
         super(input, length, mapping, features);
     }
 
@@ -76,7 +66,6 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
     public <T> T parseObject(Class<T> clazz) {
         return (T) parseObject((Type) clazz);
     }
-
 
     public <T> T parseObject(Type type) {
         if (lexer.token() == JSONToken.NULL) {
@@ -280,8 +269,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         derializer.parseObject(this, object);
     }
 
-    
-	public Object parseArrayWithType(Type collectionType) {
+    public Object parseArrayWithType(Type collectionType) {
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             return null;

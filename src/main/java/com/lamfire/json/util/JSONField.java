@@ -1,10 +1,6 @@
-
 package com.lamfire.json.util;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 import com.lamfire.json.parser.Feature;
 import com.lamfire.json.serializer.SerializerFeature;

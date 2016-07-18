@@ -1,4 +1,3 @@
-
 package com.lamfire.json;
 
 import java.lang.reflect.Array;
@@ -7,28 +6,13 @@ import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import com.lamfire.json.parser.DefaultExtJSONParser;
-import com.lamfire.json.parser.DefaultJSONParser;
-import com.lamfire.json.parser.Feature;
-import com.lamfire.json.parser.ParserConfig;
-import com.lamfire.json.serializer.JSONSerializer;
-import com.lamfire.json.serializer.JavaBeanSerializer;
-import com.lamfire.json.serializer.SerializeConfig;
-import com.lamfire.json.serializer.SerializeWriter;
-import com.lamfire.json.serializer.SerializerFeature;
-import com.lamfire.json.util.CharUtils;
-import com.lamfire.json.util.FieldInfo;
-import com.lamfire.json.util.ThreadLocalCache;
-import com.lamfire.json.util.TypeReference;
-import com.lamfire.json.util.UTF8Decoder;
+import com.lamfire.json.parser.*;
+import com.lamfire.json.serializer.*;
+import com.lamfire.json.util.*;
 
-abstract class JSONParser{
+abstract class JSONParser {
 
     public static final int DEFAULT_PARSER_FEATURE;
     static {
@@ -74,7 +58,8 @@ abstract class JSONParser{
         return parse(input, 0, input.length, UTF8_CharsetEncoder, features);
     }
 
-    protected static final Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Feature... features) {
+    protected static final Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder,
+                                        Feature... features) {
         if (input == null || input.length == 0) {
             return null;
         }
@@ -159,7 +144,7 @@ abstract class JSONParser{
 
     @SuppressWarnings("unchecked")
     protected static final <T> T parseObject(String input, Type clazz, ParserConfig config, int featureValues,
-                                          Feature... features) {
+                                             Feature... features) {
         if (input == null) {
             return null;
         }
@@ -188,7 +173,7 @@ abstract class JSONParser{
 
     @SuppressWarnings("unchecked")
     protected static final <T> T parseObject(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Type clazz,
-                                          Feature... features) {
+                                             Feature... features) {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
@@ -286,12 +271,13 @@ abstract class JSONParser{
         }
     }
 
-    protected static synchronized final String toJSONString(Object object, SerializeConfig config, SerializerFeature... features) {
+    protected static synchronized final String toJSONString(Object object, SerializeConfig config,
+                                                            SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            for ( SerializerFeature feature : features) {
+            for (SerializerFeature feature : features) {
                 serializer.config(feature, true);
             }
 
@@ -328,13 +314,12 @@ abstract class JSONParser{
 
         return toJSONString(object, SerializerFeature.PrettyFormat);
     }
-    
+
     // ///////
 
     protected static final Object toJSONObject(Object javaObject) {
         return toJSONObject(javaObject, ParserConfig.getGlobalInstance());
     }
-    
 
     @SuppressWarnings("unchecked")
     protected static final Object toJSONObject(Object javaObject, ParserConfig mapping) {

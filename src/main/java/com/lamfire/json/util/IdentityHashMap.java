@@ -2,8 +2,6 @@ package com.lamfire.json.util;
 
 /**
  * for concurrent IdentityHashMap
- * 
- * @author wenshao<szujobs@hotmail.com>
  */
 @SuppressWarnings("unchecked")
 public class IdentityHashMap<K, V> {
@@ -13,11 +11,11 @@ public class IdentityHashMap<K, V> {
     private final Entry<K, V>[] buckets;
     private final int           indexMask;
 
-    public IdentityHashMap(){
+    public IdentityHashMap() {
         this(DEFAULT_TABLE_SIZE);
     }
 
-    public IdentityHashMap(int tableSize){
+    public IdentityHashMap(int tableSize) {
         this.indexMask = tableSize - 1;
         this.buckets = new Entry[tableSize];
     }
@@ -46,7 +44,7 @@ public class IdentityHashMap<K, V> {
         }
 
         Entry<K, V> entry = new Entry<K, V>(key, value, hash, buckets[bucket]);
-        buckets[bucket] = entry;  // ²¢·¢ÊÇ´¦ÀíÊ±»á¿ÉÄÜµ¼ÖÂ»º´æ¶ªÊ§£¬µ«²»Ó°ÏìÕıÈ·ĞÔ
+        buckets[bucket] = entry; // å¹¶å‘æ˜¯å¤„ç†æ—¶ä¼šå¯èƒ½å¯¼è‡´ç¼“å­˜ä¸¢å¤±ï¼Œä½†ä¸å½±å“æ­£ç¡®æ€§
 
         return false;
     }
@@ -63,18 +61,17 @@ public class IdentityHashMap<K, V> {
 
     protected static final class Entry<K, V> {
 
-        public final int   hashCode;
-        public final K     key;
-        public final V     value;
+        public final int         hashCode;
+        public final K           key;
+        public final V           value;
 
         public final Entry<K, V> next;
 
-        public Entry(K key, V value, int hash, Entry<K, V> next){
+        public Entry(K key, V value, int hash, Entry<K, V> next) {
             this.key = key;
             this.value = value;
             this.next = next;
             this.hashCode = hash;
         }
     }
-
 }

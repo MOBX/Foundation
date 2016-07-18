@@ -5,33 +5,27 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.RandomAccess;
+import java.util.*;
 
 import com.lamfire.json.serializer.JSONSerializer;
 import com.lamfire.json.serializer.SerializeWriter;
 import com.lamfire.json.util.TypeConverters;
 import com.lamfire.utils.Lists;
 
-
 public class JSONArray extends JSONParser implements List<Object>, JSONString, Cloneable, RandomAccess, Serializable {
 
     private static final long  serialVersionUID = 1L;
     private final List<Object> list;
 
-    public JSONArray(){
+    public JSONArray() {
         this.list = new ArrayList<Object>(10);
     }
 
-    public JSONArray(List<Object> list){
+    public JSONArray(List<Object> list) {
         this.list = list;
     }
 
-    public JSONArray(int initialCapacity){
+    public JSONArray(int initialCapacity) {
         this.list = new ArrayList<Object>(initialCapacity);
     }
 
@@ -308,11 +302,11 @@ public class JSONArray extends JSONParser implements List<Object>, JSONString, C
     public Object clone() {
         return new JSONArray(new ArrayList<Object>(list));
     }
-    
+
     public boolean equals(Object obj) {
         return this.list.equals(obj);
     }
-    
+
     public int hashCode() {
         return this.list.hashCode();
     }
@@ -332,8 +326,7 @@ public class JSONArray extends JSONParser implements List<Object>, JSONString, C
         }
     }
 
-
-    public byte[] toBytes(){
+    public byte[] toBytes() {
         SerializeWriter out = new SerializeWriter();
         try {
             new JSONSerializer(out).write(this);
@@ -343,7 +336,7 @@ public class JSONArray extends JSONParser implements List<Object>, JSONString, C
         }
     }
 
-    public byte[] toBytes(Charset charset){
+    public byte[] toBytes(Charset charset) {
         SerializeWriter out = new SerializeWriter();
         try {
             new JSONSerializer(out).write(this);
@@ -353,7 +346,7 @@ public class JSONArray extends JSONParser implements List<Object>, JSONString, C
         }
     }
 
-    public byte[] toBytes(String charset){
+    public byte[] toBytes(String charset) {
         SerializeWriter out = new SerializeWriter();
         try {
             new JSONSerializer(out).write(this);
@@ -363,10 +356,9 @@ public class JSONArray extends JSONParser implements List<Object>, JSONString, C
         }
     }
 
-    public <E> List<E> asList(){
+    public <E> List<E> asList() {
         return Lists.asList(this);
     }
-
 
     public void writeJSONString(Appendable appendable) {
         SerializeWriter out = new SerializeWriter();
@@ -379,8 +371,8 @@ public class JSONArray extends JSONParser implements List<Object>, JSONString, C
             out.close();
         }
     }
-    
-    public static JSONArray fromJSONString(String json){
-		return parseArray(json);
-	}
+
+    public static JSONArray fromJSONString(String json) {
+        return parseArray(json);
+    }
 }

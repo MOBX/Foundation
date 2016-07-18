@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings({ "unchecked"})
+@SuppressWarnings({ "rawtypes" })
 public class MapSerializer implements ObjectSerializer {
 
     public static MapSerializer instance = new MapSerializer();
 
- 
     public void write(JSONSerializer serializer, Object object) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
@@ -20,9 +19,9 @@ public class MapSerializer implements ObjectSerializer {
 
         Map<?, ?> map = (Map<?, ?>) object;
 
-//        if (out.isEnabled(SerializerFeature.SortField)) {
-//            map = new TreeMap(map);
-//        }
+        // if (out.isEnabled(SerializerFeature.SortField)) {
+        // map = new TreeMap(map);
+        // }
 
         out.write('{');
 

@@ -6,21 +6,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.lamfire.json.JSONException;
-import com.lamfire.json.parser.DefaultExtJSONParser;
-import com.lamfire.json.parser.Feature;
-import com.lamfire.json.parser.JSONLexer;
-import com.lamfire.json.parser.JSONToken;
-import com.lamfire.json.parser.ParserConfig;
+import com.lamfire.json.parser.*;
 import com.lamfire.json.util.FieldInfo;
 
-@SuppressWarnings({ "unchecked"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
     private final Type         itemType;
     private int                itemFastMatchToken;
     private ObjectDeserializer deserializer;
 
-    public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
+    public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         super(clazz, fieldInfo);
 
         this.itemType = ((ParameterizedType) getFieldType()).getActualTypeArguments()[0];
@@ -44,7 +40,6 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         setValue(object, list);
     }
-
 
     public final void parseArray(DefaultExtJSONParser parser, Collection array) {
         final JSONLexer lexer = parser.getLexer();

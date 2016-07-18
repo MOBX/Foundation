@@ -1,11 +1,10 @@
-
 package com.lamfire.json.parser;
 
 import java.util.Map;
 
+import com.lamfire.json.JSON;
 import com.lamfire.json.JSONArray;
 import com.lamfire.json.JSONException;
-import com.lamfire.json.JSON;
 import com.lamfire.json.util.SymbolTable;
 
 public class DefaultJSONParser extends AbstractJSONParser {
@@ -15,23 +14,23 @@ public class DefaultJSONParser extends AbstractJSONParser {
     protected final SymbolTable symbolTable;
     protected ParserConfig      config;
 
-    public DefaultJSONParser(String input){
+    public DefaultJSONParser(String input) {
         this(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
     }
 
-    public DefaultJSONParser(final String input, final ParserConfig config){
+    public DefaultJSONParser(final String input, final ParserConfig config) {
         this(input, new JSONScanner(input, JSON.DEFAULT_PARSER_FEATURE), config);
     }
 
-    public DefaultJSONParser(final String input, final ParserConfig config, int features){
+    public DefaultJSONParser(final String input, final ParserConfig config, int features) {
         this(input, new JSONScanner(input, features), config);
     }
 
-    public DefaultJSONParser(final char[] input, int length, final ParserConfig config, int features){
+    public DefaultJSONParser(final char[] input, int length, final ParserConfig config, int features) {
         this(input, new JSONScanner(input, length, features), config);
     }
 
-    public DefaultJSONParser(final Object input, final JSONLexer lexer, final ParserConfig config){
+    public DefaultJSONParser(final Object input, final JSONLexer lexer, final ParserConfig config) {
         this.input = input;
         this.lexer = lexer;
         this.config = config;
@@ -55,7 +54,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
         return input.toString();
     }
 
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public final void parseObject(final Map object) {
         JSONScanner lexer = (JSONScanner) this.lexer;
         if (lexer.token() != JSONToken.LBRACE) {
@@ -143,7 +142,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 }
 
                 object.put(key, value);
-            } else if (ch == '[') { // ¼õÉÙÇ±Ì×£¬¼æÈÝandroid
+            } else if (ch == '[') { // ï¿½ï¿½ï¿½ï¿½Ç±ï¿½×£ï¿½ï¿½ï¿½ï¿½ï¿½android
                 lexer.nextToken();
                 JSONArray list = new JSONArray();
                 this.parseArray(list);
@@ -158,7 +157,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (ch == '{') { // ¼õÉÙÇ±Ì×£¬¼æÈÝandroid
+            } else if (ch == '{') { // ï¿½ï¿½ï¿½ï¿½Ç±ï¿½×£ï¿½ï¿½ï¿½ï¿½ï¿½android
                 lexer.nextToken();
                 JSON obj = new JSON();
                 this.parseObject(obj);
@@ -203,6 +202,5 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
         }
     }
-
 
 }
