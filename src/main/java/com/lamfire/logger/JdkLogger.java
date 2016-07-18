@@ -1,4 +1,3 @@
-
 package com.lamfire.logger;
 
 import java.util.logging.Level;
@@ -13,15 +12,15 @@ class JdkLogger extends com.lamfire.logger.Logger {
         this.logger = logger;
         this.loggerName = loggerName;
     }
-    
-    public JdkLogger(Class<?> cls){
-    	this.loggerName = cls.getName();
-    	this.logger = Logger.getLogger(this.loggerName);
+
+    public JdkLogger(Class<?> cls) {
+        this.loggerName = cls.getName();
+        this.logger = Logger.getLogger(this.loggerName);
     }
-    
-    public JdkLogger(String name){
-    	this.loggerName = name;
-    	logger = Logger.getLogger(name);
+
+    public JdkLogger(String name) {
+        this.loggerName = name;
+        logger = Logger.getLogger(name);
     }
 
     public void debug(String msg) {
@@ -76,25 +75,25 @@ class JdkLogger extends com.lamfire.logger.Logger {
     public String toString() {
         return loggerName;
     }
-    
-	@Override
-	public void debug(Throwable cause) {
-		debug(cause.getMessage(), cause);
-	}
 
-	@Override
-	public void error(Throwable cause) {
-		error(cause.getMessage(), cause);
-		
-	}
+    @Override
+    public void debug(Throwable cause) {
+        debug(cause.getMessage(), cause);
+    }
 
-	@Override
-	public void info(Throwable cause) {
-		info(cause.getMessage(), cause);
-	}
+    @Override
+    public void error(Throwable cause) {
+        error(cause.getMessage(), cause);
 
-	@Override
-	public void warn(Throwable cause) {
-		warn(cause.getMessage(), cause);
-	}
+    }
+
+    @Override
+    public void info(Throwable cause) {
+        info(cause.getMessage(), cause);
+    }
+
+    @Override
+    public void warn(Throwable cause) {
+        warn(cause.getMessage(), cause);
+    }
 }

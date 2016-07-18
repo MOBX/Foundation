@@ -2,18 +2,18 @@ package com.lamfire.logger;
 
 import org.slf4j.LoggerFactory;
 
-public class Slf4jLogger extends Logger{
+public class Slf4jLogger extends Logger {
 
-    private org.slf4j.Logger logger ;
-    
-    public Slf4jLogger(Class<?> cls){
+    private org.slf4j.Logger logger;
+
+    public Slf4jLogger(Class<?> cls) {
         this.logger = LoggerFactory.getLogger(cls);
     }
-    
-    public Slf4jLogger(String name){
+
+    public Slf4jLogger(String name) {
         this.logger = LoggerFactory.getLogger(name);
     }
-    
+
     @Override
     public void debug(String msg) {
         logger.debug(msg);
@@ -21,7 +21,7 @@ public class Slf4jLogger extends Logger{
 
     @Override
     public void debug(String msg, Throwable cause) {
-        logger.debug(msg,cause);
+        logger.debug(msg, cause);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class Slf4jLogger extends Logger{
 
     @Override
     public void error(String msg, Throwable cause) {
-        logger.error(msg,cause);
+        logger.error(msg, cause);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class Slf4jLogger extends Logger{
 
     @Override
     public void info(String msg, Throwable cause) {
-        logger.info(msg,cause);
+        logger.info(msg, cause);
     }
 
     @Override
@@ -71,30 +71,28 @@ public class Slf4jLogger extends Logger{
 
     @Override
     public void warn(String msg, Throwable cause) {
-        logger.warn(msg,cause);
+        logger.warn(msg, cause);
     }
 
-	@Override
-	public void debug(Throwable cause) {
-		logger.debug(cause.getMessage(), cause);
-	}
+    @Override
+    public void debug(Throwable cause) {
+        logger.debug(cause.getMessage(), cause);
+    }
 
-	@Override
-	public void error(Throwable cause) {
-		logger.error(cause.getMessage(), cause);
-		
-	}
+    @Override
+    public void error(Throwable cause) {
+        logger.error(cause.getMessage(), cause);
 
-	@Override
-	public void info(Throwable cause) {
-		logger.info(cause.getMessage(), cause);
-	}
+    }
 
-	@Override
-	public void warn(Throwable cause) {
-		logger.warn(cause.getMessage(), cause);
-		
-	}
+    @Override
+    public void info(Throwable cause) {
+        logger.info(cause.getMessage(), cause);
+    }
 
-    
+    @Override
+    public void warn(Throwable cause) {
+        logger.warn(cause.getMessage(), cause);
+
+    }
 }
