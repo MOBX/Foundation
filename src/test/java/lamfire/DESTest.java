@@ -1,6 +1,3 @@
-/*
- * Copyright 2015-2020 uuzu.com All right reserved.
- */
 package lamfire;
 
 import com.lamfire.code.Base64;
