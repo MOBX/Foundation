@@ -2,8 +2,10 @@ package com.lamfire.filequeue;
 
 import java.io.IOException;
 
-
 public class ExpiredException extends IOException {
+
+    private static final long serialVersionUID = 9127711830636757848L;
+
     public ExpiredException() {
     }
 

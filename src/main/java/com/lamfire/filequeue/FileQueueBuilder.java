@@ -3,29 +3,26 @@ package com.lamfire.filequeue;
 import java.io.IOException;
 
 /**
- * ÌØ¾Ã»¯¶ÔÁÐ´´½¨¹¤¾ß
- * User: lamfire
- * Date: 14-11-6
- * Time: ÉÏÎç10:32
- * To change this template use File | Settings | File Templates.
+ * ç‰¹ä¹…åŒ–å¯¹åˆ—åˆ›å»ºå·¥å…·
  */
 public class FileQueueBuilder extends Builder<FileQueue> {
 
     int clearExpireFileIntervalSeconds = 300;
 
-    public FileQueueBuilder enableAutoClearExpireFileIntervalSeconds(int clearExpireFileIntervalSeconds){
+    public FileQueueBuilder enableAutoClearExpireFileIntervalSeconds(int clearExpireFileIntervalSeconds) {
         this.clearExpireFileIntervalSeconds = clearExpireFileIntervalSeconds;
         return this;
     }
 
     @Override
     synchronized FileQueue make() throws IOException {
-        FileQueueImpl fileQueue = new FileQueueImpl(dataDir,name,indexBlockSize,dataBlockSize,indexFilePartitionLength,dataFilePartitionLength) ;
-        if(closeOnJvmShutdown()){
+        FileQueueImpl fileQueue = new FileQueueImpl(dataDir, name, indexBlockSize, dataBlockSize,
+                                                    indexFilePartitionLength, dataFilePartitionLength);
+        if (closeOnJvmShutdown()) {
             fileQueue.addCloseOnJvmShutdown();
         }
 
-        if(clearExpireFileIntervalSeconds > 0 ){
+        if (clearExpireFileIntervalSeconds > 0) {
             fileQueue.enableClearExpireFile(clearExpireFileIntervalSeconds);
         }
 

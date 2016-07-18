@@ -1,85 +1,87 @@
 package com.lamfire.filequeue;
 
-import com.lamfire.logger.Logger;
-import com.lamfire.utils.Bytes;
-import com.lamfire.utils.FilenameUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.lamfire.logger.Logger;
+import com.lamfire.utils.Bytes;
+import com.lamfire.utils.FilenameUtils;
+
 /**
- * ¶ÓÁÐÔªÊý¾Ý¶ÁÐ´
- * @author lamfire
- *
+ * é˜Ÿåˆ—å…ƒæ•°æ®è¯»å†™
  */
 class MetaBuffer {
-    private static final Logger LOGGER = Logger.getLogger(MetaBuffer.class);
-	public static final String FILE_SUFFIX = "";
-	public static final int META_FILE_LENGTH = 64;
 
-    public static String getMetaFileName(String dir,String name){
+    private static final Logger LOGGER           = Logger.getLogger(MetaBuffer.class);
+    public static final String  FILE_SUFFIX      = "";
+    public static final int     META_FILE_LENGTH = 64;
+
+    public static String getMetaFileName(String dir, String name) {
         dir = FilenameUtils.normalizeNoEndSeparator(dir);
-        String fileName = (name + FILE_SUFFIX );
-        return (dir+ File.separator + fileName);
+        String fileName = (name + FILE_SUFFIX);
+        return (dir + File.separator + fileName);
     }
 
-    public static File getMetaFile(String dir,String name){
+    public static File getMetaFile(String dir, String name) {
         return new File(getMetaFileName(dir, name));
     }
 
-    public static void deleteMetaFile(String dir,String name){
+    public static void deleteMetaFile(String dir, String name) {
         File file = getMetaFile(dir, name);
-        if(file.exists() && file.isFile()){
+        if (file.exists() && file.isFile()) {
             file.delete();
         }
     }
 
-    private final Lock lock = new ReentrantLock();
-	private FileBuffer file = null;
-	
-	private final byte[] buffer = new byte[META_FILE_LENGTH];
+    private final Lock          lock             = new ReentrantLock();
+    private FileBuffer          file             = null;
 
-    private final AtomicInteger readIndex = new AtomicInteger(0); //µ±Ç°¶ÁÈ¡Ò³
-    private int readIndexOffset = 0;//µ±Ç°¶ÁÈ¡Î»ÖÃ
+    private final byte[]        buffer           = new byte[META_FILE_LENGTH];
 
-    private int readDataIndex = 0;
-    private int readDataOffset = 0;
+    private final AtomicInteger readIndex        = new AtomicInteger(0);      // ï¿½ï¿½Ç°ï¿½ï¿½È¡Ò³
+    private int                 readIndexOffset  = 0;                         // ï¿½ï¿½Ç°ï¿½ï¿½È¡Î»ï¿½ï¿½
 
-    private final AtomicInteger writeIndex = new AtomicInteger(0);//µ±Ç°Ð´Ò³
-    private int writeIndexOffset = 0;//µ±Ç°Ð´Î»ÖÃ
+    private int                 readDataIndex    = 0;
+    private int                 readDataOffset   = 0;
 
-    private final AtomicInteger writeDataIndex = new AtomicInteger(0); //×îºóÐ´ÈëStore ºÅ
-    private int writeDataOffset = 0;//×îºóÐ´ÈëÊý¾ÝÎ»ÖÃ
+    private final AtomicInteger writeIndex       = new AtomicInteger(0);      // ï¿½ï¿½Ç°Ð´Ò³
+    private int                 writeIndexOffset = 0;                         // ï¿½ï¿½Ç°Ð´Î»ï¿½ï¿½
 
-    private final int indexFilePartitionLength;   //Ë÷ÒýÎÄ¼þ·ÖÇø´óÐ¡
-    private final int dataFilePartitionLength ;     //Êý¾ÝÎÄ¼þ·ÖÇø´óÐ¡
-	
-	public MetaBuffer(File file,int indexFilePartitionLength , int dataFilePartitionLength) throws IOException{
+    private final AtomicInteger writeDataIndex   = new AtomicInteger(0);      // ï¿½ï¿½ï¿½Ð´ï¿½ï¿½Store ï¿½ï¿½
+    private int                 writeDataOffset  = 0;                         // ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½
+
+    private final int           indexFilePartitionLength;                     // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡
+    private final int           dataFilePartitionLength;                      // ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡
+
+    public MetaBuffer(File file, int indexFilePartitionLength, int dataFilePartitionLength) throws IOException {
         boolean existsFile = file.exists();
-		this.file = new FileBuffer(file,META_FILE_LENGTH);
+        this.file = new FileBuffer(file, META_FILE_LENGTH);
 
-        if(!existsFile){
+        if (!existsFile) {
             this.indexFilePartitionLength = indexFilePartitionLength;
             this.dataFilePartitionLength = dataFilePartitionLength;
             flush();
-        }else{
-            //´æÔÚÔò¼ÓÔØ
+        } else {
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             LOGGER.info("[EXISTS] : load meta data from : " + file.getAbsolutePath());
             loadFromFile();
             this.indexFilePartitionLength = takeIndexFilePartitionLength();
             this.dataFilePartitionLength = takeDataFilePartitionLength();
 
-            if(this.indexFilePartitionLength != indexFilePartitionLength || this.dataFilePartitionLength != dataFilePartitionLength){
-                throw new IOException("Partition Length failed,index:" + indexFilePartitionLength + "/" + this.indexFilePartitionLength +" -> data:" + dataFilePartitionLength + "/" + this.dataFilePartitionLength);
+            if (this.indexFilePartitionLength != indexFilePartitionLength
+                || this.dataFilePartitionLength != dataFilePartitionLength) {
+                throw new IOException("Partition Length failed,index:" + indexFilePartitionLength + "/"
+                                      + this.indexFilePartitionLength + " -> data:" + dataFilePartitionLength + "/"
+                                      + this.dataFilePartitionLength);
             }
         }
-	}
-	
-	private void loadFromFile()throws IOException{
-        try{
+    }
+
+    private void loadFromFile() throws IOException {
+        try {
             lock.lock();
             this.readIndex.set(file.getInt(0));
             this.readIndexOffset = file.getInt(4);
@@ -90,45 +92,45 @@ class MetaBuffer {
             this.writeIndexOffset = file.getInt(20);
             this.writeDataIndex.set(file.getInt(24));
             this.writeDataOffset = file.getInt(28);
-        }finally {
+        } finally {
             lock.unlock();
         }
-	}
+    }
 
-    private int takeIndexFilePartitionLength()throws IOException{
+    private int takeIndexFilePartitionLength() throws IOException {
         return file.getInt(32);
     }
 
-    private int takeDataFilePartitionLength()throws IOException{
+    private int takeDataFilePartitionLength() throws IOException {
         return file.getInt(36);
     }
-	
-	public void flush()throws IOException{
-        try{
-            lock.lock();
-            Bytes.putInt(buffer,0, readIndex.get());
-            Bytes.putInt(buffer,4, readIndexOffset);
-            Bytes.putInt(buffer,8, readDataIndex);
-            Bytes.putInt(buffer,12, readDataOffset);
 
-            Bytes.putInt(buffer,16, writeIndex.get());
-            Bytes.putInt(buffer,20,writeIndexOffset);
-            Bytes.putInt(buffer,24, writeDataIndex.get());
-            Bytes.putInt(buffer,28, writeDataOffset);
-            Bytes.putInt(buffer,32, indexFilePartitionLength);
-            Bytes.putInt(buffer,36, dataFilePartitionLength);
+    public void flush() throws IOException {
+        try {
+            lock.lock();
+            Bytes.putInt(buffer, 0, readIndex.get());
+            Bytes.putInt(buffer, 4, readIndexOffset);
+            Bytes.putInt(buffer, 8, readDataIndex);
+            Bytes.putInt(buffer, 12, readDataOffset);
+
+            Bytes.putInt(buffer, 16, writeIndex.get());
+            Bytes.putInt(buffer, 20, writeIndexOffset);
+            Bytes.putInt(buffer, 24, writeDataIndex.get());
+            Bytes.putInt(buffer, 28, writeDataOffset);
+            Bytes.putInt(buffer, 32, indexFilePartitionLength);
+            Bytes.putInt(buffer, 36, dataFilePartitionLength);
             file.setWritePosition(0);
             file.put(buffer);
-        }finally {
+        } finally {
             lock.unlock();
         }
-	}
-	
-	public void clear()throws IOException{
-        try{
+    }
+
+    public void clear() throws IOException {
+        try {
             lock.lock();
             this.readIndex.set(0);
-            this.readIndexOffset =0;
+            this.readIndexOffset = 0;
             this.readDataIndex = 0;
             this.readDataOffset = 0;
 
@@ -137,232 +139,234 @@ class MetaBuffer {
             this.writeDataIndex.set(0);
             this.writeDataOffset = 0;
             flush();
-        }finally {
+        } finally {
             lock.unlock();
         }
-	}
-	
-	public void close(){
-        try{
-            lock.lock();
-        if(this.file == null){
-            return;
-        }
-		this.file.close();
-		this.file = null;
-        }finally {
-            lock.unlock();
-        }
-	}
+    }
 
-    public void closeAndDeleteFile(){
-        try{
+    public void close() {
+        try {
             lock.lock();
-            if(this.file == null){
+            if (this.file == null) {
+                return;
+            }
+            this.file.close();
+            this.file = null;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void closeAndDeleteFile() {
+        try {
+            lock.lock();
+            if (this.file == null) {
                 return;
             }
             LOGGER.info("deleting meta file : " + file.getFilePath());
             this.file.closeAndDeleteFile();
             this.file = null;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
-	public long getReadCount() {
-        try{
+    public long getReadCount() {
+        try {
             lock.lock();
-            return ((indexFilePartitionLength - indexFilePartitionLength % Element.ELEMENT_LENGTH) * readIndex.get() + readIndexOffset) /  Element.ELEMENT_LENGTH;
-        }finally {
+            return ((indexFilePartitionLength - indexFilePartitionLength % Element.ELEMENT_LENGTH) * readIndex.get() + readIndexOffset)
+                   / Element.ELEMENT_LENGTH;
+        } finally {
             lock.unlock();
         }
-	}
+    }
 
-
-	public long getWriteCount() {
-        try{
+    public long getWriteCount() {
+        try {
             lock.lock();
-            long count = (((indexFilePartitionLength - indexFilePartitionLength % Element.ELEMENT_LENGTH) * writeIndex.get() + writeIndexOffset)) /  Element.ELEMENT_LENGTH;
+            long count = (((indexFilePartitionLength - indexFilePartitionLength % Element.ELEMENT_LENGTH)
+                           * writeIndex.get() + writeIndexOffset))
+                         / Element.ELEMENT_LENGTH;
             return count;
-        }finally {
+        } finally {
             lock.unlock();
         }
-	}
+    }
 
     public int getReadIndex() {
-        try{
+        try {
             lock.lock();
             return readIndex.get();
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
-    public void setReadIndex(int index){
-        try{
+    public void setReadIndex(int index) {
+        try {
             lock.lock();
             readIndex.set(index);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
-    public synchronized void moveToNextReadIndex()throws IOException{
-        try{
+    public synchronized void moveToNextReadIndex() throws IOException {
+        try {
             lock.lock();
             int index = readIndex.incrementAndGet();
-            if(index > writeIndex.get() ){
+            if (index > writeIndex.get()) {
                 readIndex.decrementAndGet();
                 throw new IOException("Not found index : " + index);
             }
             setReadIndexOffset(0);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public synchronized void moveToNextWriteIndex() {
-        try{
+        try {
             lock.lock();
             writeIndex.incrementAndGet();
             setWriteIndexOffset(0);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public synchronized void moveToNextDataWriteIndex() {
-        try{
+        try {
             lock.lock();
             writeDataIndex.incrementAndGet();
             setWriteDataOffset(0);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public int getReadIndexOffset() {
-        try{
+        try {
             lock.lock();
             return readIndexOffset;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public void setReadIndexOffset(int readIndexOffset) {
-        try{
+        try {
             lock.lock();
-        this.readIndexOffset = readIndexOffset;
-        }finally {
+            this.readIndexOffset = readIndexOffset;
+        } finally {
             lock.unlock();
         }
     }
 
     public int getReadDataIndex() {
-        try{
+        try {
             lock.lock();
-        return readDataIndex;
-        }finally {
+            return readDataIndex;
+        } finally {
             lock.unlock();
         }
     }
 
     public void setReadDataIndex(int readStore) {
-        try{
+        try {
             lock.lock();
             this.readDataIndex = readStore;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public int getReadDataOffset() {
-        try{
+        try {
             lock.lock();
             return readDataOffset;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public void setReadDataOffset(int readDataOffset) {
-        try{
+        try {
             lock.lock();
             this.readDataOffset = readDataOffset;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public int getWriteIndex() {
-        try{
+        try {
             lock.lock();
             return writeIndex.get();
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public void setWriteIndex(int writeIndex) {
-        try{
+        try {
             lock.lock();
             this.writeIndex.set(writeIndex);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public int getWriteIndexOffset() {
-        try{
+        try {
             lock.lock();
             return writeIndexOffset;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public void setWriteIndexOffset(int writeIndexOffset) {
-        try{
+        try {
             lock.lock();
             this.writeIndexOffset = writeIndexOffset;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public int getWriteDataIndex() {
-        try{
+        try {
             lock.lock();
             return writeDataIndex.get();
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public void setWriteDataIndex(int writeDataIndex) {
-        try{
+        try {
             lock.lock();
             this.writeDataIndex.set(writeDataIndex);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public int getWriteDataOffset() {
-        try{
+        try {
             lock.lock();
             return writeDataOffset;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public void setWriteDataOffset(int writeDataOffset) {
-        try{
+        try {
             lock.lock();
             this.writeDataOffset = writeDataOffset;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -377,17 +381,9 @@ class MetaBuffer {
 
     @Override
     public String toString() {
-        return "MetaIO{" +
-                "writeCount=" + getWriteCount() +
-                ", readCount=" + getReadCount() +
-                ", writeDataOffset=" + writeDataOffset +
-                ", writeDataIndex=" + writeDataIndex +
-                ", writeOffset=" + writeIndexOffset +
-                ", writeIndex=" + writeIndex +
-                ", readIndexOffset=" + readIndexOffset +
-                ", readIndex=" + readIndex +
-                ", readDataIndex=" + readDataIndex +
-                ", readDataOffset=" + readDataOffset +
-                '}';
+        return "MetaIO{" + "writeCount=" + getWriteCount() + ", readCount=" + getReadCount() + ", writeDataOffset="
+               + writeDataOffset + ", writeDataIndex=" + writeDataIndex + ", writeOffset=" + writeIndexOffset
+               + ", writeIndex=" + writeIndex + ", readIndexOffset=" + readIndexOffset + ", readIndex=" + readIndex
+               + ", readDataIndex=" + readDataIndex + ", readDataOffset=" + readDataOffset + '}';
     }
 }

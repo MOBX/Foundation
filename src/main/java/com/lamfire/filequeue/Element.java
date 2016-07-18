@@ -3,107 +3,95 @@ package com.lamfire.filequeue;
 import com.lamfire.utils.Bytes;
 
 /**
- * IndexIO ÔªËØ
- * @author lamfire
- *
+ * IndexIO å…ƒç´ 
  */
 class Element {
-	public static final int  ELEMENT_LENGTH = 12;
 
-	public static final Element NULL = new Element(0,0,0);
-	
-	private int store;
+    public static final int     ELEMENT_LENGTH = 12;
 
-	private int position;
+    public static final Element NULL           = new Element(0, 0, 0);
 
-	private int length;
-	
-	public Element(){
-		
-	}
+    private int                 store;
 
-	public Element(int store,int position, int length) {
-		this.store = store;
-		this.position = position;
-		this.length = length;
-	}
-	
-	public byte[] asBytes(){
-		byte[] bytes = new byte[12];
-		Bytes.putInt(bytes, 0, store);
-		Bytes.putInt(bytes, 4, position);
-		Bytes.putInt(bytes, 8, length);
-		return bytes;
-	}
-	
-	public static Element fromBytes(byte[] bytes){
-		Element e = new Element();
-		e.store = Bytes.toInt(bytes, 0);
-		e.position = Bytes.toInt(bytes, 4);
-		e.length = Bytes.toInt(bytes, 8);
-		return e;
-	}
+    private int                 position;
 
-	public int getPosition() {
-		return position;
-	}
+    private int                 length;
 
+    public Element() {
 
+    }
 
-	public int getLength() {
-		return length;
-	}
-	
-	
+    public Element(int store, int position, int length) {
+        this.store = store;
+        this.position = position;
+        this.length = length;
+    }
 
-	public int getStore() {
-		return store;
-	}
+    public byte[] asBytes() {
+        byte[] bytes = new byte[12];
+        Bytes.putInt(bytes, 0, store);
+        Bytes.putInt(bytes, 4, position);
+        Bytes.putInt(bytes, 8, length);
+        return bytes;
+    }
 
-	public void setStore(int store) {
-		this.store = store;
-	}
+    public static Element fromBytes(byte[] bytes) {
+        Element e = new Element();
+        e.store = Bytes.toInt(bytes, 0);
+        e.position = Bytes.toInt(bytes, 4);
+        e.length = Bytes.toInt(bytes, 8);
+        return e;
+    }
 
-	public void setPosition(int position) {
-		this.position = position;
-	}
+    public int getPosition() {
+        return position;
+    }
 
-	public void setLength(int length) {
-		this.length = length;
-	}
+    public int getLength() {
+        return length;
+    }
 
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + "[" + "index = " + store + ", position = " + position + ", length = " + length + "]";
-	}
+    public int getStore() {
+        return store;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + length;
-		result = prime * result + store;
-		result = prime * result + position;
-		return result;
-	}
+    public void setStore(int store) {
+        this.store = store;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Element other = (Element) obj;
-		if (length != other.length)
-			return false;
-		if (store != other.store)
-			return false;
-		if (position != other.position)
-			return false;
-		return true;
-	}
-	
-	
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + "index = " + store + ", position = " + position + ", length = "
+               + length + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + length;
+        result = prime * result + store;
+        result = prime * result + position;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Element other = (Element) obj;
+        if (length != other.length) return false;
+        if (store != other.store) return false;
+        if (position != other.position) return false;
+        return true;
+    }
 }

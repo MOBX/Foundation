@@ -1,6 +1,5 @@
 package com.lamfire.filequeue;
 
-
 import java.io.IOException;
 
 interface Reader {
@@ -17,5 +16,5 @@ interface Reader {
 
     public void moveNext() throws IOException;
 
-    public void commit()throws IOException;
+    public void commit() throws IOException;
 }

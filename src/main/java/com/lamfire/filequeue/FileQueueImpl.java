@@ -1,132 +1,117 @@
 package com.lamfire.filequeue;
 
-import com.lamfire.logger.Logger;
-import com.lamfire.utils.CloseOnJvmShutdownHook;
-import com.lamfire.utils.Threads;
-
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOError;
-import java.io.IOException;
+import java.io.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.lamfire.logger.Logger;
+import com.lamfire.utils.CloseOnJvmShutdownHook;
+import com.lamfire.utils.Threads;
+
 /**
- * Ò»¸ö¸ßÐÔÄÜ³Ö¾Ã»¯¶ÔÁÐ,Ö§³ÖÏÈ½øÏÈ³ö
- * 
- * @author lamfire
- * 
+ * ä¸€ä¸ªé«˜æ€§èƒ½æŒä¹…åŒ–å¯¹åˆ—,æ”¯æŒå…ˆè¿›å…ˆå‡º
  */
-class FileQueueImpl implements FileQueue,Closeable{
-	private static final Logger LOGGER = Logger.getLogger(FileQueueImpl.class);
-	private static final int DEFAULT_BUFFER_SIZE = 4 * 1024 * 1024;
-	private int indexBufferSize = DEFAULT_BUFFER_SIZE;
-	private int storeBufferSize = DEFAULT_BUFFER_SIZE;
+class FileQueueImpl implements FileQueue, Closeable {
 
-	private final Lock lock = new ReentrantLock();
+    private static final Logger LOGGER                     = Logger.getLogger(FileQueueImpl.class);
+    private static final int    DEFAULT_BUFFER_SIZE        = 4 * 1024 * 1024;
+    private int                 indexBufferSize            = DEFAULT_BUFFER_SIZE;
+    private int                 storeBufferSize            = DEFAULT_BUFFER_SIZE;
 
-	private String dir;
-	private String name;
+    private final Lock          lock                       = new ReentrantLock();
 
-	private MetaBuffer meta;
-    private IndexManager indexMgr;
-    private DataManager dataMgr;
+    private String              dir;
+    private String              name;
 
-    private Reader reader;
-    private Writer writer;
+    private MetaBuffer          meta;
+    private IndexManager        indexMgr;
+    private DataManager         dataMgr;
 
-    private int indexOfLastDeleteStoreFile = 0 ;
-    private int indexOfLastDeleteIndexFile = 0;
+    private Reader              reader;
+    private Writer              writer;
 
-    private int indexFilePartitionLength;
-    private int dataFilePartitionLength;
-    private boolean closeOnJvmShutdown = false;
+    private int                 indexOfLastDeleteStoreFile = 0;
+    private int                 indexOfLastDeleteIndexFile = 0;
 
-	public FileQueueImpl(String dataDir, String name, int indexBufferSize, int storeBufferSize,int indexFilePartitionLength,int dataFilePartitionLength) throws IOException {
-		this.indexBufferSize = indexBufferSize;
+    private int                 indexFilePartitionLength;
+    private int                 dataFilePartitionLength;
+    private boolean             closeOnJvmShutdown         = false;
+
+    public FileQueueImpl(String dataDir, String name, int indexBufferSize, int storeBufferSize,
+                         int indexFilePartitionLength, int dataFilePartitionLength) throws IOException {
+        this.indexBufferSize = indexBufferSize;
         this.indexFilePartitionLength = indexFilePartitionLength;
         this.dataFilePartitionLength = dataFilePartitionLength;
-		this.storeBufferSize = storeBufferSize;
-		this.dir = dataDir;
-		this.name = name;
-		File dir = new File(dataDir);
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
+        this.storeBufferSize = storeBufferSize;
+        this.dir = dataDir;
+        this.name = name;
+        File dir = new File(dataDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
 
-        //³õÊ¼»¯
-		initialize();
+        // åˆå§‹åŒ–
+        initialize();
 
-        //¼ì²éÊÇ·ñÎª¿Õ¶ÔÁÐ
-        if(this.isEmpty() && this.meta.getReadCount() > 0){
+        // æ£€æŸ¥æ˜¯å¦ä¸ºç©ºå¯¹åˆ—
+        if (this.isEmpty() && this.meta.getReadCount() > 0) {
             this.renew();
         }
-	}
+    }
 
-	void initialize() throws IOException {
+    void initialize() throws IOException {
         try {
             lock.lock();
-            if(meta == null){
-                meta = new MetaBuffer(MetaBuffer.getMetaFile(dir, name),indexFilePartitionLength,dataFilePartitionLength);
+            if (meta == null) {
+                meta = new MetaBuffer(MetaBuffer.getMetaFile(dir, name), indexFilePartitionLength,
+                                      dataFilePartitionLength);
             }
 
-            if(indexMgr == null){
-                indexMgr = new IndexManager(this.meta,dir,name);
+            if (indexMgr == null) {
+                indexMgr = new IndexManager(this.meta, dir, name);
             }
 
-            if(dataMgr == null){
-                dataMgr = new DataManager(this.meta,dir,name);
+            if (dataMgr == null) {
+                dataMgr = new DataManager(this.meta, dir, name);
             }
 
-            if(reader == null){
-                reader = new ReaderImpl(this.meta,indexMgr, dataMgr) ;
+            if (reader == null) {
+                reader = new ReaderImpl(this.meta, indexMgr, dataMgr);
             }
 
-            if(writer == null){
-                writer = new WriterImpl(this.meta,indexMgr, dataMgr);
+            if (writer == null) {
+                writer = new WriterImpl(this.meta, indexMgr, dataMgr);
             }
 
             indexMgr.setBufferSize(indexBufferSize);
             dataMgr.setBufferSize(storeBufferSize);
 
-            indexOfLastDeleteStoreFile = 0 ;
+            indexOfLastDeleteStoreFile = 0;
             indexOfLastDeleteIndexFile = 0;
 
         } finally {
             lock.unlock();
         }
-	}
-
+    }
 
     /**
-     * ¶¨Ê±ÇåÀí¹ýÆÚÎÄ¼þ
-     * @param clearExpireFileIntervalSeconds    Ê±¼ä¼ä¸ô
+     * å®šæ—¶æ¸…ç†è¿‡æœŸæ–‡ä»¶
+     * 
+     * @param clearExpireFileIntervalSeconds æ—¶é—´é—´éš”
      */
-    protected void enableClearExpireFile(int clearExpireFileIntervalSeconds){
-        //Æô¶¯¼ì²éÇåÀí¹ýÆÚÎÄ¼þÊ±¼äÈÎÎñ
-        if(clearExpireFileIntervalSeconds > 0){
-            Threads.scheduleWithFixedDelay(autoClearExpiredFileMonitor,clearExpireFileIntervalSeconds,clearExpireFileIntervalSeconds, TimeUnit.SECONDS);
+    protected void enableClearExpireFile(int clearExpireFileIntervalSeconds) {
+        // å¯åŠ¨æ£€æŸ¥æ¸…ç†è¿‡æœŸæ–‡ä»¶æ—¶é—´ä»»åŠ¡
+        if (clearExpireFileIntervalSeconds > 0) {
+            Threads.scheduleWithFixedDelay(autoClearExpiredFileMonitor, clearExpireFileIntervalSeconds,
+                                           clearExpireFileIntervalSeconds, TimeUnit.SECONDS);
         }
     }
 
-
-	public boolean push(byte[] bytes) {
-		try {
-			lock.lock();
-            writer.write(bytes);
-			return true;
-		} catch (Exception e) {
-			throw new IOError(e);
-		} finally {
-			lock.unlock();
-		}
-	}
-
-    public boolean push(byte[] bytes,int offset,int length) {
+    public boolean push(byte[] bytes) {
         try {
             lock.lock();
-            writer.write(bytes,offset,length);
+            writer.write(bytes);
             return true;
         } catch (Exception e) {
             throw new IOError(e);
@@ -135,17 +120,27 @@ class FileQueueImpl implements FileQueue,Closeable{
         }
     }
 
-	public  boolean isEmpty() {
-		return size() == 0;
-	}
+    public boolean push(byte[] bytes, int offset, int length) {
+        try {
+            lock.lock();
+            writer.write(bytes, offset, length);
+            return true;
+        } catch (Exception e) {
+            throw new IOError(e);
+        } finally {
+            lock.unlock();
+        }
+    }
 
+    public boolean isEmpty() {
+        return size() == 0;
+    }
 
+    public byte[] peek() {
+        return peek(0);
+    }
 
-    public  byte[] peek() {
-		return peek(0);
-	}
-
-    public  byte[] peek(int i) {
+    public byte[] peek(int i) {
         if (isEmpty()) {
             return null;
         }
@@ -160,13 +155,13 @@ class FileQueueImpl implements FileQueue,Closeable{
         }
     }
 
-    public  byte[] pull() {
+    public byte[] pull() {
         if (isEmpty()) {
             return null;
         }
         try {
             lock.lock();
-            if(reader.hashMore()){
+            if (reader.hashMore()) {
                 reader.moveTo(0);
                 byte[] bytes = reader.read();
                 reader.moveNext();
@@ -181,17 +176,17 @@ class FileQueueImpl implements FileQueue,Closeable{
         }
     }
 
-    public void skip(int number){
+    public void skip(int number) {
         if (isEmpty() || number <= 0) {
-            return ;
+            return;
         }
         try {
             lock.lock();
-            int i=0;
-            while(reader.hashMore()){
+            int i = 0;
+            while (reader.hashMore()) {
                 reader.moveNext();
                 i++;
-                if(i >= number){
+                if (i >= number) {
                     break;
                 }
             }
@@ -203,29 +198,29 @@ class FileQueueImpl implements FileQueue,Closeable{
         }
     }
 
-	public  long size() {
-		try {
-			lock.lock();
-			return meta.getWriteCount() - meta.getReadCount();
-		} finally {
-			lock.unlock();
-		}
-	}
+    public long size() {
+        try {
+            lock.lock();
+            return meta.getWriteCount() - meta.getReadCount();
+        } finally {
+            lock.unlock();
+        }
+    }
 
-	public void clear() {
-		try {
-			lock.lock();
+    public void clear() {
+        try {
+            lock.lock();
             deleteAllIndexFiles();
             deleteAllDataFiles();
             meta.clear();
-		} catch (IOException e) {
-			throw new IOError(e);
-		} finally {
-			lock.unlock();
-		}
-	}
+        } catch (IOException e) {
+            throw new IOError(e);
+        } finally {
+            lock.unlock();
+        }
+    }
 
-    protected void renew(){
+    protected void renew() {
         try {
             LOGGER.info("[RENEW] : " + name);
             lock.lock();
@@ -240,20 +235,20 @@ class FileQueueImpl implements FileQueue,Closeable{
         }
     }
 
-	public void close() {
-		try {
-			lock.lock();
+    public void close() {
+        try {
+            lock.lock();
             Threads.removeScheduledTask(autoClearExpiredFileMonitor);
             dataMgr.close();
             indexMgr.close();
             meta.close();
-		} finally {
-			lock.unlock();
+        } finally {
+            lock.unlock();
             removeCloseOnJvmShutdown();
-		}
-	}
+        }
+    }
 
-    public void delete(){
+    public void delete() {
         try {
             lock.lock();
             Threads.removeScheduledTask(autoClearExpiredFileMonitor);
@@ -268,67 +263,69 @@ class FileQueueImpl implements FileQueue,Closeable{
         }
     }
 
-    private void deleteExpiredDataFiles(){
+    private void deleteExpiredDataFiles() {
         int store = meta.getReadDataIndex();
-        for(int i=indexOfLastDeleteStoreFile;i<store;i++){
+        for (int i = indexOfLastDeleteStoreFile; i < store; i++) {
             dataMgr.deleteDataFile(i);
             indexOfLastDeleteStoreFile = i;
         }
     }
 
-    private void deleteExpiredIndexFiles(){
+    private void deleteExpiredIndexFiles() {
         int index = meta.getReadIndex();
-        for(int i=indexOfLastDeleteIndexFile;i<index;i++){
+        for (int i = indexOfLastDeleteIndexFile; i < index; i++) {
             indexMgr.deleteIndexFile(i);
             indexOfLastDeleteIndexFile = i;
         }
     }
 
-    private void deleteAllDataFiles(){
+    private void deleteAllDataFiles() {
         int store = meta.getWriteDataIndex();
-        for(int i=indexOfLastDeleteStoreFile;i<=store;i++){
+        for (int i = indexOfLastDeleteStoreFile; i <= store; i++) {
             dataMgr.deleteDataFile(i);
             indexOfLastDeleteStoreFile = i;
         }
     }
 
-    private void deleteAllIndexFiles(){
+    private void deleteAllIndexFiles() {
         int index = meta.getWriteIndex();
-        for(int i=indexOfLastDeleteIndexFile;i<=index;i++){
+        for (int i = indexOfLastDeleteIndexFile; i <= index; i++) {
             indexMgr.deleteIndexFile(i);
             indexOfLastDeleteIndexFile = i;
         }
     }
 
-    void addCloseOnJvmShutdown(){
-        if(!closeOnJvmShutdown){
+    void addCloseOnJvmShutdown() {
+        if (!closeOnJvmShutdown) {
             closeOnJvmShutdown = true;
             CloseOnJvmShutdownHook.getInstance().addJvmShutdownHook(this);
         }
     }
 
-    void removeCloseOnJvmShutdown(){
-        if(closeOnJvmShutdown){
+    void removeCloseOnJvmShutdown() {
+        if (closeOnJvmShutdown) {
             closeOnJvmShutdown = false;
             CloseOnJvmShutdownHook.getInstance().removeJvmShutdownHook(this);
         }
     }
 
     Runnable autoClearExpiredFileMonitor = new Runnable() {
-        @Override
-        public void run() {
-            try{
-                lock.lock();
-                deleteExpiredDataFiles();
-                deleteExpiredIndexFiles();
-                if(size() == 0 && (meta.getWriteIndex() > 0 || meta.getWriteDataIndex() > 0)){
-                    renew();
-                }
-            }catch (Throwable t){
 
-            } finally {
-                lock.unlock();
-            }
-        }
-    } ;
+                                             @Override
+                                             public void run() {
+                                                 try {
+                                                     lock.lock();
+                                                     deleteExpiredDataFiles();
+                                                     deleteExpiredIndexFiles();
+                                                     if (size() == 0
+                                                         && (meta.getWriteIndex() > 0 || meta.getWriteDataIndex() > 0)) {
+                                                         renew();
+                                                     }
+                                                 } catch (Throwable t) {
+
+                                                 } finally {
+                                                     lock.unlock();
+                                                 }
+                                             }
+                                         };
 }

@@ -1,27 +1,20 @@
 package com.lamfire.filequeue;
 
-import com.lamfire.utils.StringUtils;
-
 import java.io.IOException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: lamfire
- * Date: 14-11-6
- * Time: ÉÏÎç10:11
- * To change this template use File | Settings | File Templates.
- */
+import com.lamfire.utils.StringUtils;
+
 public abstract class Builder<E> {
-    protected String dataDir;
-    protected String name;
-    protected int indexBlockSize = 4 * 1024 * 1024; //Ë÷ÒıÄÚ´æÓ³Éä¿é´óĞ¡
-    protected int dataBlockSize = 4 * 1024 * 1024;  //Êı¾İÄÚ´æÓ³Éä¿é´óĞ¡
-    protected boolean closeOnJvmShutdown = false;
-    protected int indexFilePartitionLength = 1024 * 1024 * 1024;   //Ë÷ÒıÎÄ¼ş·ÖÇø´óĞ¡
-    protected int dataFilePartitionLength =1024 * 1024 * 1024;     //Êı¾İÎÄ¼ş·ÖÇø´óĞ¡
 
+    protected String  dataDir;
+    protected String  name;
+    protected int     indexBlockSize           = 4 * 1024 * 1024;   // ç´¢å¼•å†…å­˜æ˜ å°„å—å¤§å°
+    protected int     dataBlockSize            = 4 * 1024 * 1024;   // æ•°æ®å†…å­˜æ˜ å°„å—å¤§å°
+    protected boolean closeOnJvmShutdown       = false;
+    protected int     indexFilePartitionLength = 1024 * 1024 * 1024; // ç´¢å¼•æ–‡ä»¶åˆ†åŒºå¤§å°
+    protected int     dataFilePartitionLength  = 1024 * 1024 * 1024; // æ•°æ®æ–‡ä»¶åˆ†åŒºå¤§å°
 
-    public boolean closeOnJvmShutdown(){
+    public boolean closeOnJvmShutdown() {
         return closeOnJvmShutdown;
     }
 
@@ -66,26 +59,26 @@ public abstract class Builder<E> {
         return this;
     }
 
-    public Builder<E> indexFilePartitionLength(int indexFilePartitionLength){
+    public Builder<E> indexFilePartitionLength(int indexFilePartitionLength) {
         this.indexFilePartitionLength = indexFilePartitionLength;
         return this;
     }
 
-    public Builder<E> dataFilePartitionLength(int dataFilePartitionLength){
+    public Builder<E> dataFilePartitionLength(int dataFilePartitionLength) {
         this.dataFilePartitionLength = dataFilePartitionLength;
         return this;
     }
 
-    public E build()throws IOException{
-        if(StringUtils.isBlank(dataDir)){
+    public E build() throws IOException {
+        if (StringUtils.isBlank(dataDir)) {
             throw new IllegalArgumentException("Argument 'dataDir' can not be empty.");
         }
 
-        if(StringUtils.isBlank(name)){
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("Argument 'name' can not be empty.");
         }
 
-        return make() ;
+        return make();
     }
 
     abstract E make() throws IOException;
