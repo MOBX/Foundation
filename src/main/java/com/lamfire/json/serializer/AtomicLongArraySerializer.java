@@ -18,7 +18,7 @@ public class AtomicLongArraySerializer implements ObjectSerializer {
             }
             return;
         }
-        
+
         AtomicLongArray array = (AtomicLongArray) object;
         int len = array.length();
         out.append('[');
@@ -31,5 +31,4 @@ public class AtomicLongArraySerializer implements ObjectSerializer {
         }
         out.append(']');
     }
-
 }

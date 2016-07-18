@@ -6,14 +6,14 @@ public class ArraySerializer implements ObjectSerializer {
 
     private final ObjectSerializer compObjectSerializer;
 
-    public ArraySerializer(ObjectSerializer compObjectSerializer){
+    public ArraySerializer(ObjectSerializer compObjectSerializer) {
         super();
         this.compObjectSerializer = compObjectSerializer;
     }
 
     public final void write(JSONSerializer serializer, Object object) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");

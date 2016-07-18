@@ -3,7 +3,6 @@ package com.lamfire.json.serializer;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-
 public class BigDecimalSerializer implements ObjectSerializer {
 
     public final static BigDecimalSerializer instance = new BigDecimalSerializer();
@@ -23,5 +22,4 @@ public class BigDecimalSerializer implements ObjectSerializer {
         BigDecimal val = (BigDecimal) object;
         out.write(val.toString());
     }
-
 }

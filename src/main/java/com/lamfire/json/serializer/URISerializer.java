@@ -3,7 +3,6 @@ package com.lamfire.json.serializer;
 import java.io.IOException;
 import java.net.URI;
 
-
 public class URISerializer implements ObjectSerializer {
 
     public final static URISerializer instance = new URISerializer();
@@ -17,5 +16,4 @@ public class URISerializer implements ObjectSerializer {
         URI uri = (URI) object;
         serializer.write(uri.toString());
     }
-
 }

@@ -2,7 +2,6 @@ package com.lamfire.json.serializer;
 
 import java.io.IOException;
 
-
 public class URLSerializer implements ObjectSerializer {
 
     public final static URLSerializer instance = new URLSerializer();
@@ -15,5 +14,4 @@ public class URLSerializer implements ObjectSerializer {
 
         serializer.write(object.toString());
     }
-
 }

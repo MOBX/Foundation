@@ -4,17 +4,12 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.lamfire.json.JSONException;
 import com.lamfire.json.parser.ParserConfig;
 import com.lamfire.json.util.FieldInfo;
 import com.lamfire.json.util.JSONField;
-
 
 public class JavaBeanSerializer implements ObjectSerializer {
 
@@ -25,11 +20,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
         return getters;
     }
 
-    public JavaBeanSerializer(Class<?> clazz){
+    public JavaBeanSerializer(Class<?> clazz) {
         this(clazz, (Map<String, String>) null);
     }
 
-    public JavaBeanSerializer(Class<?> clazz, String... aliasList){
+    public JavaBeanSerializer(Class<?> clazz, String... aliasList) {
         this(clazz, createAliasMap(aliasList));
     }
 
@@ -42,7 +37,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         return aliasMap;
     }
 
-    public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap){
+    public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap) {
         List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
         List<FieldInfo> fieldInfoList = computeGetters(clazz, aliasMap);
@@ -108,7 +103,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 propertyValue = FilterUtils.processValue(serializer, object, fieldSerializer.getName(), propertyValue);
 
                 if (propertyValue == null) {
-                    if ((!fieldSerializer.isWriteNull()) && (!serializer.isEnabled(SerializerFeature.WriteMapNullValue))) {
+                    if ((!fieldSerializer.isWriteNull())
+                        && (!serializer.isEnabled(SerializerFeature.WriteMapNullValue))) {
                         continue;
                     }
                 }

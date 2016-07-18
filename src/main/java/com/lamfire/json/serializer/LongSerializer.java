@@ -2,7 +2,6 @@ package com.lamfire.json.serializer;
 
 import java.io.IOException;
 
-
 public class LongSerializer implements ObjectSerializer {
 
     public static LongSerializer instance = new LongSerializer();
@@ -18,7 +17,7 @@ public class LongSerializer implements ObjectSerializer {
             }
             return;
         }
-        
+
         Long value = (Long) object;
         out.writeLong(value.longValue());
     }

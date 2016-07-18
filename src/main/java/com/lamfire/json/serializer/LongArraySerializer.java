@@ -8,7 +8,7 @@ public class LongArraySerializer implements ObjectSerializer {
 
     public final void write(JSONSerializer serializer, Object object) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");
@@ -22,6 +22,4 @@ public class LongArraySerializer implements ObjectSerializer {
 
         out.writeLongArray(array);
     }
-    
-
 }

@@ -13,13 +13,13 @@ public class DoubleSerializer implements ObjectSerializer {
             if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
                 out.write('0');
             } else {
-                out.writeNull();                
+                out.writeNull();
             }
             return;
         }
 
-        double doubleValue = ((Double) object).doubleValue(); 
-        
+        double doubleValue = ((Double) object).doubleValue();
+
         if (Double.isNaN(doubleValue)) {
             out.writeNull();
         } else if (Double.isInfinite(doubleValue)) {

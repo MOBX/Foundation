@@ -17,5 +17,4 @@ public class AtomicBooleanSerializer implements ObjectSerializer {
             out.append("false");
         }
     }
-
 }

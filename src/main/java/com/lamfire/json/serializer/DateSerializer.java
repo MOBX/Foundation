@@ -6,17 +6,16 @@ import java.util.Date;
 
 import com.lamfire.json.util.CharUtils;
 
-
 public class DateSerializer implements ObjectSerializer {
 
     public final static DateSerializer instance = new DateSerializer();
 
     public void write(JSONSerializer serializer, Object object) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
-        	out.writeNull();
-        	return;
+            out.writeNull();
+            return;
         }
 
         Date date = (Date) object;

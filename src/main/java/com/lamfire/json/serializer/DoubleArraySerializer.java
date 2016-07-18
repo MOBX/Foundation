@@ -2,17 +2,16 @@ package com.lamfire.json.serializer;
 
 import java.io.IOException;
 
-
 public class DoubleArraySerializer implements ObjectSerializer {
 
     public static final DoubleArraySerializer instance = new DoubleArraySerializer();
 
-    public DoubleArraySerializer(){
+    public DoubleArraySerializer() {
     }
 
     public final void write(JSONSerializer serializer, Object object) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");

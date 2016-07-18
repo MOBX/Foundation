@@ -2,7 +2,7 @@ package com.lamfire.json.serializer;
 
 public class ExceptionSerializer extends JavaBeanSerializer {
 
-    public ExceptionSerializer(Class<?> clazz){
+    public ExceptionSerializer(Class<?> clazz) {
         super(clazz);
     }
 

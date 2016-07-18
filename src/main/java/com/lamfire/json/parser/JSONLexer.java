@@ -18,13 +18,13 @@ public interface JSONLexer {
     String stringVal();
 
     Number integerValue();
-    
+
     void nextTokenWithColon(int expect);
 
     BigDecimal decimalValue();
-    
+
     double doubleValue();
-    
+
     float floatValue();
 
     void config(Feature feature, boolean state);

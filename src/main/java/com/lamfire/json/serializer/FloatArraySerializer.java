@@ -6,12 +6,12 @@ public class FloatArraySerializer implements ObjectSerializer {
 
     public static final FloatArraySerializer instance = new FloatArraySerializer();
 
-    public FloatArraySerializer(){
+    public FloatArraySerializer() {
     }
 
     public final void write(JSONSerializer serializer, Object object) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");

@@ -3,7 +3,6 @@ package com.lamfire.json.serializer;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-
 public class AtomicIntegerArraySerializer implements ObjectSerializer {
 
     public final static AtomicIntegerArraySerializer instance = new AtomicIntegerArraySerializer();
@@ -32,5 +31,4 @@ public class AtomicIntegerArraySerializer implements ObjectSerializer {
         }
         out.append(']');
     }
-
 }

@@ -3,7 +3,6 @@ package com.lamfire.json.serializer;
 import java.io.IOException;
 import java.math.BigInteger;
 
-
 public class BigIntegerSerializer implements ObjectSerializer {
 
     public final static BigIntegerSerializer instance = new BigIntegerSerializer();
@@ -19,9 +18,8 @@ public class BigIntegerSerializer implements ObjectSerializer {
             }
             return;
         }
-        
+
         BigInteger val = (BigInteger) object;
         out.write(val.toString());
     }
-
 }

@@ -1,6 +1,5 @@
 package com.lamfire.json.serializer;
 
-
 public final class JSONSerializerContext {
 
     public static final int DEFAULT_TABLE_SIZE = 128;
@@ -8,11 +7,11 @@ public final class JSONSerializerContext {
     private final Entry[]   buckets;
     private final int       indexMask;
 
-    public JSONSerializerContext(){
+    public JSONSerializerContext() {
         this(DEFAULT_TABLE_SIZE);
     }
 
-    public JSONSerializerContext(int tableSize){
+    public JSONSerializerContext(int tableSize) {
         this.indexMask = tableSize - 1;
         this.buckets = new Entry[tableSize];
     }
@@ -40,7 +39,7 @@ public final class JSONSerializerContext {
 
         public Entry        next;
 
-        public Entry(Object object, int hash, Entry next){
+        public Entry(Object object, int hash, Entry next) {
             this.object = object;
             this.next = next;
             this.hashCode = hash;

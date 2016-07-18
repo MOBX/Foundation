@@ -6,14 +6,14 @@ public class ObjectArraySerializer implements ObjectSerializer {
 
     public static final ObjectArraySerializer instance = new ObjectArraySerializer();
 
-    public ObjectArraySerializer(){
+    public ObjectArraySerializer() {
     }
 
     public final void write(JSONSerializer serializer, Object object) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         Object[] array = (Object[]) object;
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");
@@ -22,7 +22,7 @@ public class ObjectArraySerializer implements ObjectSerializer {
             }
             return;
         }
-        
+
         int size = array.length;
 
         int end = size - 1;
@@ -35,7 +35,7 @@ public class ObjectArraySerializer implements ObjectSerializer {
         Class<?> preClazz = null;
         ObjectSerializer preWriter = null;
         out.append('[');
-        
+
         if (out.isEnabled(SerializerFeature.PrettyFormat)) {
             serializer.incrementIndent();
             serializer.println();
@@ -51,7 +51,7 @@ public class ObjectArraySerializer implements ObjectSerializer {
             out.write(']');
             return;
         }
-        
+
         for (int i = 0; i < end; ++i) {
             Object item = array[i];
 

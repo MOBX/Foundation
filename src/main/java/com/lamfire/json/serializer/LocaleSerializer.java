@@ -16,5 +16,4 @@ public class LocaleSerializer implements ObjectSerializer {
         Locale locale = (Locale) object;
         serializer.write(locale.toString());
     }
-
 }

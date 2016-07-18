@@ -1,4 +1,3 @@
-
 package com.lamfire.json.serializer;
 
 public enum SerializerFeature {
@@ -56,7 +55,7 @@ public enum SerializerFeature {
      */
     WriteClassName;
 
-    private SerializerFeature(){
+    private SerializerFeature() {
         mask = (1 << ordinal());
     }
 

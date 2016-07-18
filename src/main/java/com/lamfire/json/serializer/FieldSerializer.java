@@ -15,7 +15,7 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
     private final String      un_quoted_fieldPrefix;
     private boolean           writeNull = false;
 
-    public FieldSerializer(FieldInfo fieldInfo){
+    public FieldSerializer(FieldInfo fieldInfo) {
         super();
         this.fieldInfo = fieldInfo;
         fieldInfo.getMethod().setAccessible(true);

@@ -7,18 +7,18 @@ import com.lamfire.json.JSON;
 
 public class JSONLibDataFormatSerializer implements ObjectSerializer {
 
-    public JSONLibDataFormatSerializer(){
+    public JSONLibDataFormatSerializer() {
     }
 
     @SuppressWarnings("deprecation")
     public void write(JSONSerializer serializer, Object object) throws IOException {
-    	if (object == null) {
-    		serializer.getWriter().writeNull();
-    		return;
-    	}
-    	
+        if (object == null) {
+            serializer.getWriter().writeNull();
+            return;
+        }
+
         Date date = (Date) object;
-       
+
         JSON json = new JSON();
         json.put("date", date.getDate());
         json.put("day", date.getDay());

@@ -13,5 +13,4 @@ public class AtomicIntegerSerializer implements ObjectSerializer {
         AtomicInteger val = (AtomicInteger) object;
         out.writeInt(val.get());
     }
-
 }

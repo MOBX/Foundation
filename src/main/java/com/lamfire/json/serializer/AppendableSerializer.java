@@ -19,5 +19,4 @@ public class AppendableSerializer implements ObjectSerializer {
 
         serializer.write(object.toString());
     }
-
 }

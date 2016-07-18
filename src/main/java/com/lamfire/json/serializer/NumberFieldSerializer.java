@@ -4,7 +4,7 @@ import com.lamfire.json.util.FieldInfo;
 
 class NumberFieldSerializer extends FieldSerializer {
 
-    public NumberFieldSerializer(FieldInfo fieldInfo){
+    public NumberFieldSerializer(FieldInfo fieldInfo) {
         super(fieldInfo);
     }
 
@@ -24,7 +24,7 @@ class NumberFieldSerializer extends FieldSerializer {
             }
             return;
         }
-        
+
         out.append(value.toString());
     }
 }

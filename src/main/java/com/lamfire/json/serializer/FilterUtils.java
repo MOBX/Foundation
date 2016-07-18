@@ -3,6 +3,7 @@ package com.lamfire.json.serializer;
 import java.util.List;
 
 public class FilterUtils {
+
     public static Object processValue(JSONSerializer serializer, Object object, String key, Object propertyValue) {
         List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
         if (valueFilters != null) {
@@ -13,7 +14,7 @@ public class FilterUtils {
 
         return propertyValue;
     }
-    
+
     public static String processKey(JSONSerializer serializer, Object object, String key, Object propertyValue) {
         List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
         if (nameFilters != null) {
@@ -128,10 +129,10 @@ public class FilterUtils {
 
         return key;
     }
-    
+
     public static boolean apply(JSONSerializer serializer, Object object, String key, Object propertyValue) {
         List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-        
+
         if (propertyFilters != null) {
             boolean apply = true;
             for (PropertyFilter propertyFilter : propertyFilters) {
@@ -148,7 +149,7 @@ public class FilterUtils {
 
     public static boolean apply(JSONSerializer serializer, Object object, String key, byte value) {
         List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-        
+
         if (propertyFilters != null) {
             boolean apply = true;
 
@@ -167,7 +168,7 @@ public class FilterUtils {
 
     public static boolean apply(JSONSerializer serializer, Object object, String key, short value) {
         List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-        
+
         if (propertyFilters != null) {
             boolean apply = true;
 
@@ -186,7 +187,7 @@ public class FilterUtils {
 
     public static boolean apply(JSONSerializer serializer, Object object, String key, int value) {
         List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-        
+
         if (propertyFilters != null) {
             boolean apply = true;
 
@@ -202,10 +203,10 @@ public class FilterUtils {
 
         return true;
     }
-    
+
     public static boolean apply(JSONSerializer serializer, Object object, String key, char value) {
         List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-        
+
         if (propertyFilters != null) {
             boolean apply = true;
 
@@ -224,7 +225,7 @@ public class FilterUtils {
 
     public static boolean apply(JSONSerializer serializer, Object object, String key, long value) {
         List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-        
+
         if (propertyFilters != null) {
             boolean apply = true;
 
@@ -243,7 +244,7 @@ public class FilterUtils {
 
     public static boolean apply(JSONSerializer serializer, Object object, String key, float value) {
         List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-        
+
         if (propertyFilters != null) {
             boolean apply = true;
 
@@ -262,7 +263,7 @@ public class FilterUtils {
 
     public static boolean apply(JSONSerializer serializer, Object object, String key, double value) {
         List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-        
+
         if (propertyFilters != null) {
             boolean apply = true;
 

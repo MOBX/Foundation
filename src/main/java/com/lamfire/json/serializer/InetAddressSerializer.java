@@ -14,8 +14,7 @@ public class InetAddressSerializer implements ObjectSerializer {
         }
 
         InetAddress address = (InetAddress) object;
-        
+
         serializer.write(address.getHostAddress());
     }
 }
-

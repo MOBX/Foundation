@@ -16,5 +16,4 @@ public class UUIDSerializer implements ObjectSerializer {
         UUID uid = (UUID) object;
         serializer.write(uid.toString());
     }
-
 }

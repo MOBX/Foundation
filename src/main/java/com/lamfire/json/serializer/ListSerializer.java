@@ -3,7 +3,6 @@ package com.lamfire.json.serializer;
 import java.io.IOException;
 import java.util.List;
 
-
 public final class ListSerializer implements ObjectSerializer {
 
     public static final ListSerializer instance = new ListSerializer();

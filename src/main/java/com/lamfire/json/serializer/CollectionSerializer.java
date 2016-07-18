@@ -3,14 +3,13 @@ package com.lamfire.json.serializer;
 import java.io.IOException;
 import java.util.Collection;
 
-
 public class CollectionSerializer implements ObjectSerializer {
 
     public final static CollectionSerializer instance = new CollectionSerializer();
 
     public void write(JSONSerializer serializer, Object object) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");
@@ -21,7 +20,7 @@ public class CollectionSerializer implements ObjectSerializer {
         }
 
         Collection<?> collection = (Collection<?>) object;
-        
+
         out.append('[');
         boolean first = true;
         for (Object item : collection) {

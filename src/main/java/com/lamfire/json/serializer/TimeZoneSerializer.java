@@ -16,5 +16,4 @@ public class TimeZoneSerializer implements ObjectSerializer {
         TimeZone timeZone = (TimeZone) object;
         serializer.write(timeZone.getID());
     }
-
 }

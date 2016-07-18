@@ -2,7 +2,6 @@ package com.lamfire.json.serializer;
 
 import java.io.IOException;
 
-
 public class EnumSerializer implements ObjectSerializer {
 
     public final static EnumSerializer instance = new EnumSerializer();

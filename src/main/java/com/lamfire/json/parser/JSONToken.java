@@ -1,6 +1,7 @@
 package com.lamfire.json.parser;
 
 public class JSONToken {
+
     //
     public final static int ERROR                = 1;
     //

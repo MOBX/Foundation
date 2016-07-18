@@ -3,7 +3,6 @@ package com.lamfire.json.serializer;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-
 public class PatternSerializer implements ObjectSerializer {
 
     public final static PatternSerializer instance = new PatternSerializer();
@@ -13,9 +12,8 @@ public class PatternSerializer implements ObjectSerializer {
             serializer.writeNull();
             return;
         }
-        
+
         Pattern p = (Pattern) object;
         serializer.write(p.pattern());
     }
-
 }

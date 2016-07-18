@@ -2,7 +2,6 @@ package com.lamfire.json.serializer;
 
 import java.io.IOException;
 
-
 public class BooleanSerializer implements ObjectSerializer {
 
     public final static BooleanSerializer instance = new BooleanSerializer();
@@ -26,5 +25,4 @@ public class BooleanSerializer implements ObjectSerializer {
             out.write("false");
         }
     }
-
 }

@@ -1,6 +1,5 @@
 package com.lamfire.json.serializer;
 
-
 public interface PropertyFilter {
 
     /**

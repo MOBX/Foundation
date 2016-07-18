@@ -3,7 +3,6 @@ package com.lamfire.json.serializer;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-
 public class CharsetSerializer implements ObjectSerializer {
 
     public final static CharsetSerializer instance = new CharsetSerializer();
@@ -17,5 +16,4 @@ public class CharsetSerializer implements ObjectSerializer {
         Charset charset = (Charset) object;
         serializer.write(charset.toString());
     }
-
 }

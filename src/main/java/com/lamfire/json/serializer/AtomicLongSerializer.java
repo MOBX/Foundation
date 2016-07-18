@@ -13,5 +13,4 @@ public class AtomicLongSerializer implements ObjectSerializer {
         AtomicLong val = (AtomicLong) object;
         out.writeLong(val.get());
     }
-
 }

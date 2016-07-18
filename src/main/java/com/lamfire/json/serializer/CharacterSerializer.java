@@ -22,5 +22,4 @@ public class CharacterSerializer implements ObjectSerializer {
             out.writeString(value.toString());
         }
     }
-
 }
