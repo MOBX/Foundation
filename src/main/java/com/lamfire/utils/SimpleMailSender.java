@@ -1,59 +1,56 @@
 package com.lamfire.utils;
 
-import com.lamfire.logger.Logger;
+import java.io.IOException;
+import java.util.*;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.*;
-import java.io.IOException;
-import java.util.*;
 
 public class SimpleMailSender {
-    private static final Logger LOGGER = Logger.getLogger(SimpleMailSender.class);
 
-    private String smtpHost = null;// SMTP·şÎñÆ÷µØÖ·
+    private String               smtpHost        = null;                          // SMTPæœåŠ¡å™¨åœ°å€
 
-    private String smtpAccount = null; //SMTP·şÎñÆ÷ÕË»§
+    private String               smtpAccount     = null;                          // SMTPæœåŠ¡å™¨è´¦æˆ·
 
-    private String smtpPassword = null; //SMTP·şÎñÆ÷ÃÜÂë
+    private String               smtpPassword    = null;                          // SMTPæœåŠ¡å™¨å¯†ç 
 
-    private boolean smtpAuthEnable = true;//SMTP·şÎñÆ÷ÊÇ·ñÑéÖ¤
+    private boolean              smtpAuthEnable  = true;                          // SMTPæœåŠ¡å™¨æ˜¯å¦éªŒè¯
 
-    private String mailContentType = "text/html; charset=UTF-8"; //ÓÊ¼şÀàĞÍ
+    private String               mailContentType = "text/html; charset=UTF-8";    // é‚®ä»¶ç±»å‹
 
-    private boolean debug = false;//ÊÇ·ñ²ÉÓÃµ÷ÊÔ·½Ê½
+    private boolean              debug           = false;                         // æ˜¯å¦é‡‡ç”¨è°ƒè¯•æ–¹å¼
 
-    private String mailFrom = null;//·¢ËÍÕßµØÖ·
+    private String               mailFrom        = null;                          // å‘é€è€…åœ°å€
 
-    private Set<InternetAddress> mailTo = new HashSet<InternetAddress>();//½ÓÊÕÕßµØÖ·
+    private Set<InternetAddress> mailTo          = new HashSet<InternetAddress>(); // æ¥æ”¶è€…åœ°å€
 
-    private Set<InternetAddress> mailCCTo = new HashSet<InternetAddress>();
+    private Set<InternetAddress> mailCCTo        = new HashSet<InternetAddress>();
 
-    private Set<InternetAddress> mailBCCTo = new HashSet<InternetAddress>();
+    private Set<InternetAddress> mailBCCTo       = new HashSet<InternetAddress>();
 
-    private String subject = null; //ÓÊ¼ş±êÌâ
+    private String               subject         = null;                          // é‚®ä»¶æ ‡é¢˜
 
-    private String mailContent = ""; //ÓÊ¼şÄÚÈİ
+    private String               mailContent     = "";                            // é‚®ä»¶å†…å®¹
 
-    private final List<String> attachedFiles = Lists.newArrayList(); //¸½¼şÁĞ±í
+    private final List<String>   attachedFiles   = Lists.newArrayList();          // é™„ä»¶åˆ—è¡¨
 
-    public void addMailTo(String mailAddress) throws AddressException{
+    public void addMailTo(String mailAddress) throws AddressException {
         mailTo.add(new InternetAddress(mailAddress));
     }
 
-    public void addMailCCTo(String mailAddress) throws AddressException{
+    public void addMailCCTo(String mailAddress) throws AddressException {
 
         mailCCTo.add(new InternetAddress(mailAddress));
 
     }
 
-    public void addMailBCCTo(String mailAddress) throws AddressException{
+    public void addMailBCCTo(String mailAddress) throws AddressException {
         mailBCCTo.add(new InternetAddress(mailAddress));
     }
 
-
-    protected MimeMessage makeMessage(Session session) throws IOException,MessagingException {
+    protected MimeMessage makeMessage(Session session) throws IOException, MessagingException {
         if (mailFrom == null) {
             throw new MessagingException("Mail from not found.");
         }
@@ -64,38 +61,38 @@ public class SimpleMailSender {
 
         MimeMessage message = new MimeMessage(session);
 
-        //ÉèÖÃÊÕ¼şÈË
+        // è®¾ç½®æ”¶ä»¶äºº
         InternetAddress[] address = new InternetAddress[mailTo.size()];
         mailTo.toArray(address);
         message.setRecipients(Message.RecipientType.TO, address);
 
-        //ÉèÖÃCC
+        // è®¾ç½®CC
         if (!mailCCTo.isEmpty()) {
             InternetAddress[] ccaddress = new InternetAddress[mailCCTo.size()];
             mailCCTo.toArray(ccaddress);
             message.setRecipients(Message.RecipientType.CC, ccaddress);
         }
 
-        //ÉèÖÃBCC
+        // è®¾ç½®BCC
         if (!mailBCCTo.isEmpty()) {
             InternetAddress[] bccaddress = new InternetAddress[mailBCCTo.size()];
             mailBCCTo.toArray(bccaddress);
             message.setRecipients(Message.RecipientType.BCC, bccaddress);
         }
 
-        //ÉèÖÃ»Ø¸´µØÖ·
+        // è®¾ç½®å›å¤åœ°å€
         InternetAddress[] replyAddress = { new InternetAddress(mailFrom) };
         message.setReplyTo(replyAddress);
 
-        //ÉèÖÃÄÚÈİÕıÎÄ
+        // è®¾ç½®å†…å®¹æ­£æ–‡
         MimeBodyPart bodyPart = new MimeBodyPart();
         bodyPart.setContent(mailContent, mailContentType);
 
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(bodyPart);
 
-        // Ìí¼Ó¸½¼ş
-        for (int i=0;i<attachedFiles.size() ;i++) {
+        // æ·»åŠ é™„ä»¶
+        for (int i = 0; i < attachedFiles.size(); i++) {
             String file = (String) attachedFiles.get(i);
             MimeBodyPart mBodyPart = new MimeBodyPart();
             FileDataSource fds = new FileDataSource(file);
@@ -111,12 +108,13 @@ public class SimpleMailSender {
         return message;
     }
 
-    public void addAttachment(String file){
+    public void addAttachment(String file) {
         this.attachedFiles.add(file);
     }
 
     /**
-     * ·¢ËÍÓÊ¼ş
+     * å‘é€é‚®ä»¶
+     * 
      * @throws java.io.IOException
      * @throws MessagingException
      * @return void
@@ -128,11 +126,12 @@ public class SimpleMailSender {
         props.put("mail.smtp.auth", String.valueOf(smtpAuthEnable));
 
         Authenticator auth = new Authenticator() {
+
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(smtpAccount,smtpPassword);
+                return new PasswordAuthentication(smtpAccount, smtpPassword);
             }
-        } ;
+        };
 
         Session session = Session.getInstance(props, auth);
         session.setDebug(debug);
@@ -148,11 +147,9 @@ public class SimpleMailSender {
         this.mailContent = mailContent;
     }
 
-
     public void setMailContentType(String mailContentType) {
         this.mailContentType = mailContentType;
     }
-
 
     public void setMailFrom(String mailFrom) {
         this.mailFrom = mailFrom;
@@ -162,16 +159,13 @@ public class SimpleMailSender {
         this.smtpAccount = smtpAccount;
     }
 
-
     public void setSmtpHost(String smtpHost) {
         this.smtpHost = smtpHost;
     }
 
-
     public void setSmtpPassword(String smtpPassword) {
         this.smtpPassword = smtpPassword;
     }
-
 
     public void setSubject(String subject) {
         this.subject = subject;
@@ -181,9 +175,7 @@ public class SimpleMailSender {
         return smtpAuthEnable;
     }
 
-
     public void setSmtpAuthEnable(boolean smtpAuthEnable) {
         this.smtpAuthEnable = smtpAuthEnable;
     }
-
 }

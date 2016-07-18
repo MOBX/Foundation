@@ -1,116 +1,112 @@
 package com.lamfire.utils;
 
-import com.lamfire.logger.Logger;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lamfire.logger.Logger;
+
 /**
- * »ùÓÚDFA¹Ø¼ü´ÊÆ¥ÅäËã·¨
- * User: lamfire
- * Date: 15-1-19
- * Time: ÉÏÎç10:06
- * To change this template use File | Settings | File Templates.
+ * åŸºäºDFAå…³é”®è¯åŒ¹é…ç®—æ³•
  */
 public class KeywordMatcher {
-    private static final Logger logger = Logger.getLogger(KeywordMatcher.class);
-    private TreeNode rootNode = new TreeNode();
-    private ByteBuffer keywordBuffer = ByteBuffer.allocate(1024);
-    private Charset charset;
 
-    public KeywordMatcher(List<String> keywordList){
-       this(keywordList,Charset.forName("UTF-8"));
+    private static final Logger logger        = Logger.getLogger(KeywordMatcher.class);
+    private TreeNode            rootNode      = new TreeNode();
+    private ByteBuffer          keywordBuffer = ByteBuffer.allocate(1024);
+    private Charset             charset;
+
+    public KeywordMatcher(List<String> keywordList) {
+        this(keywordList, Charset.forName("UTF-8"));
     }
 
-    public KeywordMatcher(List<String> keywordList, Charset charset){
+    public KeywordMatcher(List<String> keywordList, Charset charset) {
         this.charset = charset;
         for (String keyword : keywordList) {
-            if(keyword == null) continue;
+            if (keyword == null) continue;
             addKeyword(keyword, charset);
         }
     }
 
-    public void addKeywords(List<String> keywordList){
-        addKeywords(keywordList,this.charset);
+    public void addKeywords(List<String> keywordList) {
+        addKeywords(keywordList, this.charset);
     }
 
-    public void addKeywords(List<String> keywordList,Charset charset){
+    public void addKeywords(List<String> keywordList, Charset charset) {
         this.charset = charset;
         for (String keyword : keywordList) {
-            if(keyword == null) continue;
-            addKeyword(keyword,charset);
+            if (keyword == null) continue;
+            addKeyword(keyword, charset);
         }
     }
 
-    public void addKeyword(String keyword){
-        addKeyword(keyword,this.charset);
+    public void addKeyword(String keyword) {
+        addKeyword(keyword, this.charset);
     }
 
-    public void addKeyword(String keyword,Charset charset){
-        if(keyword == null) return;
+    public void addKeyword(String keyword, Charset charset) {
+        if (keyword == null) return;
         keyword = keyword.trim();
         byte[] bytes = keyword.getBytes(charset);
 
         TreeNode tempNode = rootNode;
-        //Ñ­»·Ã¿¸ö×Ö½Ú
+        // å¾ªç¯æ¯ä¸ªå­—èŠ‚
         for (int i = 0; i < bytes.length; i++) {
-            int index = bytes[i] & 0xff; //×Ö·û×ª»»³ÉÊı×Ö
+            int index = bytes[i] & 0xff; // å­—ç¬¦è½¬æ¢æˆæ•°å­—
             TreeNode node = tempNode.getSubNode(index);
 
-            if(node == null){ //Ã»³õÊ¼»¯
+            if (node == null) { // æ²¡åˆå§‹åŒ–
                 node = new TreeNode();
                 tempNode.setSubNode(index, node);
             }
             tempNode = node;
-            if(i == bytes.length - 1){
-                tempNode.setKeywordEnd(true);    //¹Ø¼ü´Ê½áÊø£¬ ÉèÖÃ½áÊø±êÖ¾
+            if (i == bytes.length - 1) {
+                tempNode.setKeywordEnd(true); // å…³é”®è¯ç»“æŸï¼Œ è®¾ç½®ç»“æŸæ ‡å¿—
             }
         }
     }
 
-    public List<String> match(String text){
+    public List<String> match(String text) {
         return match(text, charset);
     }
 
-    public List<String> match(String text,Charset charset){
+    public List<String> match(String text, Charset charset) {
         return match(text.getBytes(charset));
     }
 
     /**
-     * ËÑË÷¹Ø¼ü×Ö
+     * æœç´¢å…³é”®å­—
      */
-    private List<String> match(byte[] bytes){
+    private List<String> match(byte[] bytes) {
         List<String> words = Lists.newArrayList();
-        if(bytes == null || bytes.length == 0){
+        if (bytes == null || bytes.length == 0) {
             return words;
         }
 
         TreeNode tempNode = rootNode;
-        int rollback = 0;   //»Ø¹öÊı
-        int position = 0; //µ±Ç°±È½ÏµÄÎ»ÖÃ
+        int rollback = 0; // å›æ»šæ•°
+        int position = 0; // å½“å‰æ¯”è¾ƒçš„ä½ç½®
 
         while (position < bytes.length) {
             int index = bytes[position] & 0xFF;
-            keywordBuffer.put(bytes[position]); //Ğ´¹Ø¼ü´Ê»º´æ
+            keywordBuffer.put(bytes[position]); // å†™å…³é”®è¯ç¼“å­˜
             tempNode = tempNode.getSubNode(index);
-            //µ±Ç°Î»ÖÃµÄÆ¥Åä½áÊø
-            if(tempNode == null){
-                position = position - rollback; //»ØÍË ²¢²âÊÔÏÂÒ»¸ö×Ö½Ú
+            // å½“å‰ä½ç½®çš„åŒ¹é…ç»“æŸ
+            if (tempNode == null) {
+                position = position - rollback; // å›é€€ å¹¶æµ‹è¯•ä¸‹ä¸€ä¸ªå­—èŠ‚
                 rollback = 0;
-                tempNode = rootNode;    //×´Ì¬»ú¸´Î»
-                keywordBuffer.clear();  //Çå¿Õ
-            }
-            else if(tempNode.isKeywordEnd()){  //ÊÇ½áÊøµã ¼ÇÂ¼¹Ø¼ü´Ê
+                tempNode = rootNode; // çŠ¶æ€æœºå¤ä½
+                keywordBuffer.clear(); // æ¸…ç©º
+            } else if (tempNode.isKeywordEnd()) { // æ˜¯ç»“æŸç‚¹ è®°å½•å…³é”®è¯
                 keywordBuffer.flip();
                 String keyword = charset.decode(keywordBuffer).toString();
                 logger.debug("Find keyword:" + keyword);
                 keywordBuffer.limit(keywordBuffer.capacity());
                 words.add(keyword);
-                rollback = 1;   //Óöµ½½áÊøµã  rollback ÖÃÎª1
-            }else{
-                rollback++; //·Ç½áÊøµã »ØÍËÊı¼Ó1
+                rollback = 1; // é‡åˆ°ç»“æŸç‚¹ rollback ç½®ä¸º1
+            } else {
+                rollback++; // éç»“æŸç‚¹ å›é€€æ•°åŠ 1
             }
 
             position++;
@@ -118,17 +114,17 @@ public class KeywordMatcher {
         return words;
     }
 
-    public String replace(String source,char replaceChar){
-        return replace(source,this.charset,replaceChar);
+    public String replace(String source, char replaceChar) {
+        return replace(source, this.charset, replaceChar);
     }
 
-    public String replace(String source,Charset charset ,char replaceChar){
-        List<String> words = match(source,charset);
-        for(String keyword : words){
+    public String replace(String source, Charset charset, char replaceChar) {
+        List<String> words = match(source, charset);
+        for (String keyword : words) {
             char[] chars = new char[keyword.length()];
             ArrayUtils.fill(chars, replaceChar);
             String replaceWith = new String(chars);
-            source = StringUtils.replace(source,keyword,replaceWith);
+            source = StringUtils.replace(source, keyword, replaceWith);
         }
         return source;
     }
@@ -138,38 +134,38 @@ public class KeywordMatcher {
     }
 
     /**
-     * Ê÷½Úµã
-     * Ã¿¸ö½Úµã°üº¬Ò»¸ö³¤¶ÈÎª256µÄÊı×é
+     * æ ‘èŠ‚ç‚¹ æ¯ä¸ªèŠ‚ç‚¹åŒ…å«ä¸€ä¸ªé•¿åº¦ä¸º256çš„æ•°ç»„
      */
     private class TreeNode {
+
         private static final int NODE_LEN = 256;
 
         /**
-         * true ¹Ø¼ü´ÊµÄÖÕ½á £» false ¼ÌĞø
+         * true å…³é”®è¯çš„ç»ˆç»“ ï¼› false ç»§ç»­
          */
-        private boolean end = false;
+        private boolean          end      = false;
 
-        private List<TreeNode> subNodes = new ArrayList<TreeNode>(NODE_LEN);
+        private List<TreeNode>   subNodes = new ArrayList<TreeNode>(NODE_LEN);
 
-        public TreeNode(){
+        public TreeNode() {
             for (int i = 0; i < NODE_LEN; i++) {
                 subNodes.add(i, null);
             }
         }
 
         /**
-         * ÏòÖ¸¶¨Î»ÖÃÌí¼Ó½ÚµãÊ÷
+         * å‘æŒ‡å®šä½ç½®æ·»åŠ èŠ‚ç‚¹æ ‘
+         * 
          * @param index
          * @param node
          */
-        public void setSubNode(int index, TreeNode node){
+        public void setSubNode(int index, TreeNode node) {
             subNodes.set(index, node);
         }
 
-        public TreeNode getSubNode(int index){
+        public TreeNode getSubNode(int index) {
             return subNodes.get(index);
         }
-
 
         public boolean isKeywordEnd() {
             return end;

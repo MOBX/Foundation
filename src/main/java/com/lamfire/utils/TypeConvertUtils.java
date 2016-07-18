@@ -389,7 +389,8 @@ public class TypeConvertUtils {
 		return toArray(value, toType, false);
 	}
 
-	public static Object toArray(Object value, Class<?> toType, boolean preventNulls) {
+    @SuppressWarnings("rawtypes")
+    public static Object toArray(Object value, Class<?> toType, boolean preventNulls) {
 		if (value == null){
 			return null;
         }

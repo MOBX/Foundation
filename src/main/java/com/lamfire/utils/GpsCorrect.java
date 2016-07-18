@@ -1,19 +1,13 @@
 package com.lamfire.utils;
 
-/**
- * Created with IntelliJ IDEA.
- * User: lamfire
- * Date: 15-1-7
- * Time: ÉÏÎç11:18
- * To change this template use File | Settings | File Templates.
- */
 public class GpsCorrect {
+
     final static double pi = 3.14159265358979324;
-    final static double a = 6378245.0;
+    final static double a  = 6378245.0;
     final static double ee = 0.00669342162296594323;
 
     public static double[] transform(double gpsLat, double gpsLon) {
-        double[] latlng = new double[]{gpsLat,gpsLon};
+        double[] latlng = new double[] { gpsLat, gpsLon };
         if (isOutOfChina(gpsLat, gpsLon)) {
             return latlng;
         }
@@ -31,10 +25,8 @@ public class GpsCorrect {
     }
 
     private static boolean isOutOfChina(double lat, double lon) {
-        if (lon < 72.004 || lon > 137.8347)
-            return true;
-        if (lat < 0.8293 || lat > 55.8271)
-            return true;
+        if (lon < 72.004 || lon > 137.8347) return true;
+        if (lat < 0.8293 || lat > 55.8271) return true;
         return false;
     }
 
@@ -53,5 +45,4 @@ public class GpsCorrect {
         ret += (150.0 * Math.sin(x / 12.0 * pi) + 300.0 * Math.sin(x / 30.0 * pi)) * 2.0 / 3.0;
         return ret;
     }
-
 }

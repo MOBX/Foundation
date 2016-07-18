@@ -8,81 +8,67 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-
 public class PictureMarker {
 
-	private static final String Watermark = "resources/mark.png";
-	private static BufferedImage MarkImage;
-	
-	private static final int RIGHT = 10;
-	private static final int BOTTOM = 10;
-	
-	public static BufferedImage getMarkImage(){
-		if(MarkImage == null){
-			try {
-				URL url = ClassLoaderUtils.getResource(Watermark, PictureMarker.class);
-				MarkImage = ImageIO.read(url);
-			} catch (IOException e) {
-				throw new RuntimeException(e.getMessage());
-			}
-		}
-		return MarkImage;
-	}
-	
-	/** */
-	/**
-	 * °ÑÍ¼Æ¬Ó¡Ë¢µ½Í¼Æ¬ÉÏ
-	 * 
-	 * @param pressImg
-	 *            -- Ë®Ó¡ÎÄ¼ş
-	 * @param targetImg
-	 *            -- Ä¿±êÎÄ¼ş
-	 * @param right
-	 * @param bottom
-	 */
-	public final static void markImage(File source, File target, int right, int bottom) {
-		try {
-			//Ô­ÎÄ¼ş
-			BufferedImage sourceImage = ImageIO.read(source);
-			int wideth = sourceImage.getWidth();
-			int height = sourceImage.getHeight();
-			
-			//ĞÂÍ¼Ïñ
-			BufferedImage image = new BufferedImage(wideth, height, BufferedImage.TYPE_INT_RGB);
-			Graphics g = image.createGraphics();
-			g.drawImage(sourceImage, 0, 0, wideth, height, null);
+    private static final String  Watermark = "resources/mark.png";
+    private static BufferedImage MarkImage;
 
-			//Ë®Ó¡ÎÄ¼ş
-			BufferedImage markImage = getMarkImage();
-			int markWidth = markImage.getWidth();
-			int markHeight = markImage.getHeight();
-			g.drawImage(markImage, wideth - markWidth - right, height - markHeight - bottom, markWidth, markHeight, null);
-			g.dispose();
-			
-			
-			ImageIO.write(image, "JPEG", target);
-			
-			/**
-			//Êä³öµ½ÎÄ¼şÁ÷
-			FileOutputStream out=new FileOutputStream(target);
-			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-			encoder.encode(image);//½üJPEG±àÂë	
-	        out.close();
-	        **/
+    private static final int     RIGHT     = 10;
+    private static final int     BOTTOM    = 10;
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void markImage(File source,File target){
-		markImage(source,target,RIGHT,BOTTOM);
-	}
+    public static BufferedImage getMarkImage() {
+        if (MarkImage == null) {
+            try {
+                URL url = ClassLoaderUtils.getResource(Watermark, PictureMarker.class);
+                MarkImage = ImageIO.read(url);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+        return MarkImage;
+    }
 
-	public static void main(String[] args) {
-		File source = new File("D:\\data\\source.jpg");
-		File target = new File("D:\\data\\target.jpg");
-		markImage(source, target);
-	}
+    /**
+     * æŠŠå›¾ç‰‡å°åˆ·åˆ°å›¾ç‰‡ä¸Š
+     * 
+     * @param pressImg -- æ°´å°æ–‡ä»¶
+     * @param targetImg -- ç›®æ ‡æ–‡ä»¶
+     * @param right
+     * @param bottom
+     */
+    public final static void markImage(File source, File target, int right, int bottom) {
+        try {
+            // åŸæ–‡ä»¶
+            BufferedImage sourceImage = ImageIO.read(source);
+            int wideth = sourceImage.getWidth();
+            int height = sourceImage.getHeight();
 
+            // æ–°å›¾åƒ
+            BufferedImage image = new BufferedImage(wideth, height, BufferedImage.TYPE_INT_RGB);
+            Graphics g = image.createGraphics();
+            g.drawImage(sourceImage, 0, 0, wideth, height, null);
+
+            // æ°´å°æ–‡ä»¶
+            BufferedImage markImage = getMarkImage();
+            int markWidth = markImage.getWidth();
+            int markHeight = markImage.getHeight();
+            g.drawImage(markImage, wideth - markWidth - right, height - markHeight - bottom, markWidth, markHeight,
+                        null);
+            g.dispose();
+
+            ImageIO.write(image, "JPEG", target);
+
+            /**
+             * //è¾“å‡ºåˆ°æ–‡ä»¶æµ FileOutputStream out=new FileOutputStream(target); JPEGImageEncoder encoder =
+             * JPEGCodec.createJPEGEncoder(out); encoder.encode(image);//è¿‘JPEGç¼–ç  out.close();
+             **/
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void markImage(File source, File target) {
+        markImage(source, target, RIGHT, BOTTOM);
+    }
 }

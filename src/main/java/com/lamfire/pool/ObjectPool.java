@@ -1,26 +1,23 @@
 package com.lamfire.pool;
 
-import com.lamfire.utils.Lists;
-
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.lamfire.utils.Lists;
+
 /**
- * ¶ÔÏó³Ø
- * User: lamfire
- * Date: 15-1-15
- * Time: ÏÂÎç1:58
- * Ìá¹©¶ÔÏóÍĞ¹Ü
+ * å¯¹è±¡æ± (æä¾›å¯¹è±¡æ‰˜ç®¡)
  */
-public abstract class ObjectPool<E>{
-    private int maxIdle = 1;
+public abstract class ObjectPool<E> {
+
+    private int                      maxIdle         = 1;
     private PoolableObjectFactory<E> objectFactory;
 
-    private final AtomicInteger instanceCounter = new AtomicInteger();
+    private final AtomicInteger      instanceCounter = new AtomicInteger();
 
-    private final LinkedList<E> pool = Lists.newLinkedList();
+    private final LinkedList<E>      pool            = Lists.newLinkedList();
 
-    public ObjectPool(PoolableObjectFactory<E> objectFactory){
+    public ObjectPool(PoolableObjectFactory<E> objectFactory) {
         this.objectFactory = objectFactory;
     }
 
@@ -32,11 +29,11 @@ public abstract class ObjectPool<E>{
         this.maxIdle = maxIdle;
     }
 
-    public int getInstanceSize(){
+    public int getInstanceSize() {
         return instanceCounter.get();
     }
 
-    public int getIdle(){
+    public int getIdle() {
         return this.pool.size();
     }
 
@@ -44,51 +41,49 @@ public abstract class ObjectPool<E>{
 
     public abstract E borrowObject();
 
-
-    void addLast(E e){
+    void addLast(E e) {
         this.pool.addLast(e);
     }
 
-    boolean isEmpty(){
+    boolean isEmpty() {
         return this.pool.isEmpty();
     }
 
-    E removeFirst(){
+    E removeFirst() {
         return this.pool.removeFirst();
     }
 
-    void activate (E e){
+    void activate(E e) {
         this.objectFactory.activate(e);
     }
 
-    void passivate(E e){
+    void passivate(E e) {
         this.objectFactory.passivate(e);
     }
 
-    boolean validate(E e){
+    boolean validate(E e) {
         return this.objectFactory.validate(e);
     }
 
-    synchronized void destroy(E e){
+    synchronized void destroy(E e) {
         this.objectFactory.destroy(e);
         instanceCounter.decrementAndGet();
     }
 
-
     /**
-     * ´´½¨ÊµÀı
+     * åˆ›å»ºå®ä¾‹
      */
-    synchronized void make(){
+    synchronized void make() {
         E instance = objectFactory.make();
         pool.addLast(instance);
         instanceCounter.incrementAndGet();
     }
 
     /**
-     * µÈ´ıÊµÀı
+     * ç­‰å¾…å®ä¾‹
      */
-    synchronized void waitObjectInstance(){
-        while(pool.isEmpty()){
+    synchronized void waitObjectInstance() {
+        while (pool.isEmpty()) {
             try {
                 this.wait();
             } catch (InterruptedException e) {

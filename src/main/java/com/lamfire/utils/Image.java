@@ -5,22 +5,8 @@ import java.awt.Graphics;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.awt.image.*;
+import java.io.*;
 import java.net.URL;
 import java.util.Iterator;
 
@@ -29,769 +15,753 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import com.lamfire.logger.Logger;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import com.sun.image.codec.jpeg.*;
 
+@SuppressWarnings("restriction")
 public class Image {
-	private static final Logger LOGGER = Logger
-			.getLogger(Image.class.getName());
-	public static final float DEFAULT_JPEG_QUALITY = 0.85f;
-
-	private BufferedImage image;
-
-	public Image(BufferedImage image) {
-		this.image = image;
-	}
-
-	public Image(byte[] bytes) {
-		this.image = toBufferedImage(bytes);
-	}
-
-	public BufferedImage getBufferedImage() {
-		return image;
-	}
-
-	public int getColorSpaceType() {
-		return image.getColorModel().getColorSpace().getType();
-	}
-
-	public int getWidth() {
-		if (image == null)
-			return 0;
-		return image.getWidth();
-	}
-
-	public int getHeight() {
-		if (image == null)
-			return 0;
-		return image.getHeight();
-	}
-
-	/**
-	 * ÔÔ¼ôÍ¼Æ¬
-	 * 
-	 * @param w
-	 * @param h
-	 */
-	public void clip(int w, int h) {
-		if (image == null) {
-			throw new RuntimeException(
-					"image file not be load.please execute 'load' function agin.");
-		}
-
-		int iSrcWidth = getWidth(); // µÃµ½Ô´Í¼¿í
-		int iSrcHeight = getHeight(); // µÃµ½Ô´Í¼³¤
-
-		// Èç¹ûÔ´Í¼Æ¬µÄ¿í¶ÈºÍ¸ß¶ÈĞ¡ÓÚÄ¿±êÍ¼Æ¬µÄ¿í¶È»ò¸ß¶È£¬ÔòÖ±½Ó·µ»ØÔ­Í¼
-		if (iSrcWidth < w && iSrcHeight < h) {
-			LOGGER.warn("source image size too small.");
-			return;
-		}
-
-		int iDstLeft = (iSrcWidth - w) / 2;
-		int iDstTop = (iSrcHeight - h) / 2;
-
-		// ¼ô²Ã---
-		this.image = image.getSubimage(iDstLeft, iDstTop, w, h);
-
-	}
-
-	/**
-	 * ÔÔ¼ôÍ¼Æ¬
-	 * 
-	 * @param x
-	 * @param y
-	 * @param w
-	 * @param h
-	 */
-	public void clip(int x, int y, int w, int h) {
-		if (image == null) {
-			throw new RuntimeException(
-					"image file not be load.please execute 'load' function agin.");
-		}
-
-		int iSrcWidth = getWidth(); // µÃµ½Ô´Í¼¿í
-		int iSrcHeight = getHeight(); // µÃµ½Ô´Í¼³¤
-
-		// Èç¹ûÔ´Í¼Æ¬µÄ¿í¶ÈºÍ¸ß¶ÈĞ¡ÓÚÄ¿±êÍ¼Æ¬µÄ¿í¶È»ò¸ß¶È£¬ÔòÖ±½Ó·µ»ØÔ­Í¼
-		if (iSrcWidth < w && iSrcHeight < h) {
-			LOGGER.warn("source image size too small.");
-			return;
-		}
-
-		if (iSrcWidth < w) {
-			iSrcWidth = w;
-		}
-
-		if (iSrcHeight < h) {
-			iSrcHeight = h;
-		}
-
-		// ¼ô²Ã---
-		this.image = image.getSubimage(x, y, w, h);
-	}
-
-	/**
-	 * Ëõ·ÅÍ¼Æ¬µ½Ö¸¶¨´óĞ¡
-	 * 
-	 * @param width
-	 * @param height
-	 */
-	public void zoomScale(int width, int height) {
-		this.image = zoomScale(image, width, height);
-	}
-
-	/**
-	 * Ëõ·ÅÍ¼Æ¬²¢ÓÃÖ¸¶¨É«Ìî³ä
-	 * 
-	 * @param w
-	 * @param h
-	 * @param bgColor
-	 */
-	public void zoomScale(int w, int h, Color bgColor) {
-		this.image = zoomScale(image, w, h, bgColor);
-	}
-
-	/**
-	 * ½«Í¼Æ¬µÈ±ÈËõĞ¡µ½¹Ì¶¨¿í¶È,Èç¹ûÔ­Í¼½ÏĞ¡Ôò²»Ëõ·Å.
-	 * 
-	 * @param data
-	 * @param width
-	 * @return
-	 */
-	public void zoomScaleWidth(int width) {
-		try {
-			Image image = this;
-			int imgW = image.getWidth();
-			int imgH = image.getHeight();
-
-			double wRate = ((double) imgW / (double) width);
-
-			int height = (int) (imgH / wRate);
-
-			image.zoomScale(width, height);
-
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * ½«Í¼Æ¬µÈ±ÈËõĞ¡µ½¹Ì¶¨¿í¶È,Èç¹ûÔ­Í¼½ÏĞ¡Ôò²»Ëõ·Å.
-	 * 
-	 * @param data
-	 * @param width
-	 * @return
-	 */
-	public void zoomScaleHeight(int fixHeight) {
-		try {
-			Image image = this;
-			int imgW = image.getWidth();
-			int imgH = image.getHeight();
-
-			double hRate = ((double) imgH / (double) fixHeight);
-
-			int width = (int) (imgW / hRate);
-
-			image.zoomScale(width, fixHeight);
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * ½«Í¼Æ¬Ëõ·Å¼ôÇĞµ½¹Ì¶¨³ß´ç
-	 * 
-	 * @param data
-	 * @param width
-	 * @param height
-	 * @return
-	 */
-	public void zoomClip(int width, int height) {
-		try {
-
-			Image image = this;
-
-			int imgW = image.getWidth();
-			int imgH = image.getHeight();
-
-			if (imgW == width && imgH == height) {
-				return;
-			}
-
-			double wRate = ((double) imgW / (double) width);
-			double hRate = ((double) imgH / (double) height);
-
-			int zoomW = width;
-			int zoomH = height;
-
-			if (wRate < hRate) {
-				zoomW = (int) ((double) imgW / wRate) + 1;
-				zoomH = (int) ((double) imgH / wRate) + 1;
-			} else {
-				zoomW = (int) ((double) imgW / hRate) + 1;
-				zoomH = (int) ((double) imgH / hRate) + 1;
-			}
-
-			image.zoomScale(zoomW, zoomH);
-			image.clip(width, height);
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	public void saveAs(File file, String format) throws IOException {
-		ImageIO.write(image, format, file);
-	}
-
-	public void saveAsJPEG(File file, float quality) throws IOException {
-		OutputStream bos = new FileOutputStream(file);
-		try {
-			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos);
-			JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
-			param.setQuality(quality, false);
-			encoder.setJPEGEncodeParam(param);
-			encoder.encode(image);
-			bos.flush();
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
-		} finally {
-			try {
-				bos.close();
-			} catch (IOException e) {
-
-			}
-		}
-	}
-
-	public byte[] getBytes(String format) {
-		return getBytes(image, format);
-	}
-
-	public byte[] getJPEGBytes(float quality) {
-		return getJPEGBytes(image, quality);
-	}
-
-	/**
-	 * »æÖÆË®Ó¡Í¼Ïó
-	 * 
-	 * @param markImage
-	 * @param right
-	 * @param bottom
-	 * @param alpha
-	 */
-	public void drawMarkImage(BufferedImage markImage, int right, int bottom,
-			int colorType, boolean transluceny) {
-		// ĞÂÍ¼Ïñ
-		int wideth = this.image.getWidth();
-		int height = this.image.getHeight();
-
-		BufferedImage tagImage = new BufferedImage(wideth, height, colorType);
-
-		Graphics g = tagImage.createGraphics();
-
-		// Èç¹ûÎª²»Í¸Ã÷£¬Ôò»æÖÆ°×É«µ×
-		if (!transluceny) {
-			Color c = g.getColor();
-			g.setColor(Color.WHITE);
-			g.fillRect(0, 0, wideth, height);
-			g.setColor(c);
-		}
-
-		// »æÖÆÔ­Í¼
-		g.drawImage(this.image, 0, 0, wideth, height, null);
-
-		// »æÖÆË®Ó¡ÎÄ¼ş
-		int markWidth = markImage.getWidth();
-		int markHeight = markImage.getHeight();
-		g.drawImage(markImage, wideth - markWidth - right, height - markHeight
-				- bottom, markWidth, markHeight, null);
-		g.dispose();
-		this.image = tagImage;
-	}
-
-	public static byte[] read(File file) throws IOException {
-		FileInputStream in = null;
-		try {
-			in = new FileInputStream(file);
-			return read(in);
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (in != null) {
-				in.close();
-			}
-		}
-	}
-
-	public static byte[] read(URL url) throws IOException {
-		InputStream in = null;
-		try {
-			in = url.openStream();
-			return read(in);
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (in != null) {
-				in.close();
-			}
-		}
-	}
-
-	public static byte[] read(InputStream in) throws IOException {
-		try {
-			byte[] datas = IOUtils.toByteArray(in);
-			return datas;
-		} catch (IOException e) {
-			throw e;
-		}
-	}
-
-	public static String getFormatName(byte[] imgData) {
-		ImageInputStream input = null;
-		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-				imgData);
-		try {
-			input = ImageIO.createImageInputStream(byteArrayInputStream);
-			Iterator<ImageReader> it = ImageIO.getImageReaders(input);
-			if (it.hasNext()) {
-				ImageReader reader = it.next();
-				return reader.getFormatName();
-			}
-		} catch (Exception e) {
-		} finally {
-			try {
-				if (input != null) {
-					input.close();
-				}
-			} catch (Exception e) {
-			}
-			try {
-				byteArrayInputStream.close();
-			} catch (Exception e) {
-			}
-		}
-		return null;
-	}
-
-	public static Image parse(File file) throws IOException {
-		BufferedImage image = ImageIO.read(file);
-		return new Image(image);
-	}
-
-	public static Image parse(URL url) throws IOException {
-		InputStream in = null;
-		try {
-			in = url.openStream();
-			BufferedImage image = ImageIO.read(in);
-			return new Image(image);
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			IOUtils.closeQuietly(in);
-		}
-
-	}
-	
-	/**
-	 * ½«×Ö½ÚÊı×éÍ¼Ïó×ª»»ÎªBufferedImage¶ÔÏó
-	 * 
-	 * @param bytes
-	 * @return
-	 */
-	public static BufferedImage toBufferedImage(byte[] bytes) {
-		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-				bytes);
-		try {
-			BufferedImage image = ImageIO.read(byteArrayInputStream);
-			return image;
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
-		} finally {
-			try {
-				byteArrayInputStream.close();
-			} catch (Exception e) {
-			}
-		}
-	}
-
-	/**
-	 * ×ª»»Í¼Ïó³ÉÖ¸¶¨¸ñÊ½µÄ×Ö½ÚÁ÷
-	 * 
-	 * @param image
-	 * @param format
-	 * @return
-	 */
-	public static byte[] getBytes(BufferedImage image, String format) {
-		if ("JPEG".equals(format.toUpperCase())
-				|| "JPG".equals(format.toUpperCase())) {
-			return getJPEGBytes(image, DEFAULT_JPEG_QUALITY);
-		}
-
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		try {
-			ImageIO.write(image, format, bos);
-			return bos.toByteArray();
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
-		} finally {
-			try {
-				bos.close();
-			} catch (IOException e) {
-
-			}
-		}
-	}
-
-	/**
-	 * ¶ÔÒ»¸öÍ¼Ïñ½øĞĞĞı×ª
-	 * 
-	 * @param image
-	 * @param degree
-	 * @return
-	 */
-	public static BufferedImage rotate(BufferedImage image, int degree) {
-		int iw = image.getWidth();// Ô­Ê¼Í¼ÏóµÄ¿í¶È
-		int ih = image.getHeight();// Ô­Ê¼Í¼ÏóµÄ¸ß¶È
-		int w = 0;
-		int h = 0;
-		int x = 0;
-		int y = 0;
-		degree = degree % 360;
-		if (degree < 0)
-			degree = 360 + degree;// ½«½Ç¶È×ª»»µ½0-360¶ÈÖ®¼ä
-		double ang = degree * 0.0174532925;// ½«½Ç¶È×ªÎª»¡¶È
-
-		/**
-		 * È·¶¨Ğı×ªºóµÄÍ¼ÏóµÄ¸ß¶ÈºÍ¿í¶È
-		 */
-
-		if (degree == 180 || degree == 0 || degree == 360) {
-			w = iw;
-			h = ih;
-		} else if (degree == 90 || degree == 270) {
-			w = ih;
-			h = iw;
-		} else {
-			int d = iw + ih;
-			w = (int) (d * Math.abs(Math.cos(ang)));
-			h = (int) (d * Math.abs(Math.sin(ang)));
-		}
-
-		x = (w / 2) - (iw / 2);// È·¶¨Ô­µã×ø±ê
-		y = (h / 2) - (ih / 2);
-		BufferedImage rotatedImage = new BufferedImage(w, h, image.getType());
-		Graphics gs = rotatedImage.getGraphics();
-		gs.fillRect(0, 0, w, h);// ÒÔ¸ø¶¨ÑÕÉ«»æÖÆĞı×ªºóÍ¼Æ¬µÄ±³¾°
-		AffineTransform at = new AffineTransform();
-		at.rotate(ang, w / 2, h / 2);// Ğı×ªÍ¼Ïó
-		at.translate(x, y);
-		AffineTransformOp op = new AffineTransformOp(at,
-				AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-		op.filter(image, rotatedImage);
-		image = rotatedImage;
-		return image;
-	}
-
-	/**
-	 * ×Ô¶¯µÈ±ÈËõ·ÅÒ»¸öÍ¼Æ¬£¬¶àÓàµÄ²¿·Ö£¬ÓÃ¸ø¶¨±³¾°ÑÕÉ«²¹ÉÏ
-	 * 
-	 * @param im
-	 * @param w
-	 * @param h
-	 * @param bgColor
-	 * @return
-	 */
-	public static BufferedImage zoomScale(BufferedImage im, int w, int h,
-			Color bgColor) {
-		if (w == -1 || h == -1) {
-			return zoomScale(im, w, h);
-		}
-
-		// ¼ì²é±³¾°ÑÕÉ«
-		bgColor = null == bgColor ? Color.black : bgColor;
-		// »ñµÃ³ß´ç
-		int oW = im.getWidth();
-		int oH = im.getHeight();
-		float oR = (float) oW / (float) oH;
-		float nR = (float) w / (float) h;
-
-		int nW, nH, x, y;
-		/*
-		 * Ëõ·Å
-		 */
-		// Ô­Í¼Ì«¿í£¬¼ÆËãµ±Ô­Í¼Óë»­²¼Í¬¸ßÊ±£¬Ô­Í¼µÄµÈ±È¿í¶È
-		if (oR > nR) {
-			nW = w;
-			nH = (int) (((float) w) / oR);
-			x = 0;
-			y = (h - nH) / 2;
-		}
-		// Ô­Í¼Ì«³¤
-		else if (oR < nR) {
-			nH = h;
-			nW = (int) (((float) h) * oR);
-			x = (w - nW) / 2;
-			y = 0;
-		}
-		// ±ÈÀıÏàÍ¬
-		else {
-			nW = w;
-			nH = h;
-			x = 0;
-			y = 0;
-		}
-
-		// ´´½¨Í¼Ïñ
-		BufferedImage re = new BufferedImage(w, h, ColorSpace.TYPE_RGB);
-		// µÃµ½Ò»¸ö»æÖÆ½Ó¿Ú
-		Graphics gc = re.getGraphics();
-		gc.setColor(bgColor);
-		gc.fillRect(0, 0, w, h);
-		gc.drawImage(im, x, y, nW, nH, bgColor, null);
-		// ·µ»Ø
-		return re;
-	}
-
-	/**
-	 * ×Ô¶¯µÈ±ÈËõ·ÅÒ»¸öÍ¼Æ¬
-	 * 
-	 * @param im
-	 * @param w
-	 * @param h
-	 * @return
-	 */
-	public static BufferedImage zoomScale(BufferedImage im, int w, int h) {
-		// »ñµÃ³ß´ç
-		int oW = im.getWidth();
-		int oH = im.getHeight();
-
-		int nW = w, nH = h;
-
-		/*
-		 * Ëõ·Å
-		 */
-		// Î´Ö¸¶¨Í¼Ïñ¸ß¶È£¬¸ù¾İÔ­Í¼³ß´ç¼ÆËã³ö¸ß¶È
-		if (h == -1) {
-			nH = (int) ((float) w / oW * oH);
-		}
-		// Î´Ö¸¶¨Í¼Ïñ¿í¶È£¬¸ù¾İÔ­Í¼³ß´ç¼ÆËã³ö¿í¶È
-		else if (w == -1) {
-			nW = (int) ((float) h / oH * oW);
-		}
-
-		// ´´½¨Í¼Ïñ
-		BufferedImage re = new BufferedImage(nW, nH, ColorSpace.TYPE_RGB);
-		re.getGraphics().drawImage(im, 0, 0, nW, nH, null);
-		// ·µ»Ø
-		return re;
-	}
-
-	/**
-	 * ×Ô¶¯Ëõ·Å¼ôÇĞÒ»¸öÍ¼Æ¬£¬ÁîÆä·ûºÏ¸ø¶¨µÄ³ß´ç
-	 * 
-	 * @param im
-	 * @param w
-	 * @param h
-	 * @return
-	 */
-	public static BufferedImage clipScale(BufferedImage im, int w, int h) {
-		// »ñµÃ³ß´ç
-		int oW = im.getWidth();
-		int oH = im.getHeight();
-		float oR = (float) oW / (float) oH;
-		float nR = (float) w / (float) h;
-
-		int nW, nH, x, y;
-		/*
-		 * ²Ã¼õ
-		 */
-		// Ô­Í¼Ì«¿í£¬¼ÆËãµ±Ô­Í¼Óë»­²¼Í¬¸ßÊ±£¬Ô­Í¼µÄµÈ±È¿í¶È
-		if (oR > nR) {
-			nW = (h * oW) / oH;
-			nH = h;
-			x = (w - nW) / 2;
-			y = 0;
-		}
-		// Ô­Í¼Ì«³¤
-		else if (oR < nR) {
-			nW = w;
-			nH = (w * oH) / oW;
-			x = 0;
-			y = (h - nH) / 2;
-		}
-		// ±ÈÀıÏàÍ¬
-		else {
-			nW = w;
-			nH = h;
-			x = 0;
-			y = 0;
-		}
-		// ´´½¨Í¼Ïñ
-		BufferedImage re = new BufferedImage(w, h, ColorSpace.TYPE_RGB);
-		re.getGraphics().drawImage(im, x, y, nW, nH, Color.black, null);
-		// ·µ»Ø
-		return re;
-	}
-
-	/**
-	 * ×ª»»Í¼ÏñÎªJPEG×Ö½ÚÁ÷
-	 * 
-	 * @param image
-	 * @param quality
-	 * @return
-	 */
-	public static byte[] getJPEGBytes(BufferedImage image, float quality) {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		try {
-			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos);
-			JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
-			param.setQuality(quality, false);
-			encoder.setJPEGEncodeParam(param);
-			encoder.encode(image);
-			return bos.toByteArray();
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
-		} finally {
-			try {
-				bos.close();
-			} catch (IOException e) {
-
-			}
-		}
-	}
-
-	/**
-	 * »ñµÃÍ¼ÏñÑÕÉ«¿Õ¼äÀàĞÍ
-	 * 
-	 * @param image
-	 * @return
-	 */
-	public static int getColorSpaceType(BufferedImage image) {
-		return image.getColorModel().getColorSpace().getType();
-	}
-
-	/**
-	 * ½âÂëJPEGÎÄ¼ş
-	 * 
-	 * @param file
-	 * @return
-	 * @throws java.io.IOException
-	 */
-	public static BufferedImage decodeJPEG(File file) throws IOException {
-		InputStream input = new FileInputStream(file);
-		try {
-			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(input);
-			BufferedImage image = decoder.decodeAsBufferedImage();
-			return image;
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			input.close();
-		}
-	}
-	
-	/**
-	 * ½âÂëJPEG×Ö½Ú
-	 * @param bytes
-	 * @return
-	 */
-	public static BufferedImage decodeJPEG(byte[] bytes) {
-		ByteArrayInputStream input = new ByteArrayInputStream(bytes);
-		try {
-			return decodeJPEG(input);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			IOUtils.closeQuietly(input);
-		}
-	}
-	
-	/**
-	 * ½âÂëJPEGÁ÷
-	 * @param input
-	 * @return
-	 * @throws java.io.IOException
-	 */
-	public static BufferedImage decodeJPEG(InputStream input)  throws IOException{
-		JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(input);
-		BufferedImage image = decoder.decodeAsBufferedImage();
-		return image;
-	}
-
-	/**
-	 * CMYK»ñÈ¡JPEG4Í¼Ïñ
-	 * 
-	 * @param raster
-	 * @return
-	 */
-	public static BufferedImage cymk2jpeg(Raster raster) {
-		int w = raster.getWidth();
-		int h = raster.getHeight();
-		byte[] rgb = new byte[w * h * 3];
-
-		float[] Y = raster.getSamples(0, 0, w, h, 0, (float[]) null);
-		float[] Cb = raster.getSamples(0, 0, w, h, 1, (float[]) null);
-		float[] Cr = raster.getSamples(0, 0, w, h, 2, (float[]) null);
-		float[] K = raster.getSamples(0, 0, w, h, 3, (float[]) null);
-
-		for (int i = 0, imax = Y.length, base = 0; i < imax; i++, base += 3) {
-			float k = 220 - K[i], y = 255 - Y[i], cb = 255 - Cb[i], cr = 255 - Cr[i];
-
-			double val = y + 1.402 * (cr - 128) - k;
-			val = (val - 128) * .65f + 128;
-			rgb[base] = val < 0.0 ? (byte) 0 : val > 255.0 ? (byte) 0xff
-					: (byte) (val + 0.5);
-
-			val = y - 0.34414 * (cb - 128) - 0.71414 * (cr - 128) - k;
-			val = (val - 128) * .65f + 128;
-			rgb[base + 1] = val < 0.0 ? (byte) 0 : val > 255.0 ? (byte) 0xff
-					: (byte) (val + 0.5);
-
-			val = y + 1.772 * (cb - 128) - k;
-			val = (val - 128) * .65f + 128;
-			rgb[base + 2] = val < 0.0 ? (byte) 0 : val > 255.0 ? (byte) 0xff
-					: (byte) (val + 0.5);
-		}
-
-		raster = Raster.createInterleavedRaster(new DataBufferByte(rgb,
-				rgb.length), w, h, w * 3, 3, new int[] { 0, 1, 2 }, null);
-
-		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-		ColorModel cm = new ComponentColorModel(cs, false, true,
-				Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
-		return new BufferedImage(cm, (WritableRaster) raster, true, null);
-	}
-
-	public static final int TYPE_INT_RGB = 1;
-
-	public static final int TYPE_INT_ARGB = 2;
-
-	public static final int TYPE_INT_ARGB_PRE = 3;
-
-	public static final int TYPE_INT_BGR = 4;
-
-	public static final int TYPE_3BYTE_BGR = 5;
-
-	public static final int TYPE_4BYTE_ABGR = 6;
-
-	public static final int TYPE_4BYTE_ABGR_PRE = 7;
-
-	public static final int TYPE_USHORT_565_RGB = 8;
-
-	public static final int TYPE_USHORT_555_RGB = 9;
-
-	public static final int TYPE_BYTE_GRAY = 10;
-
-	public static final int TYPE_USHORT_GRAY = 11;
-
-	public static final int TYPE_BYTE_BINARY = 12;
-
-	public static final int TYPE_BYTE_INDEXED = 13;
+
+    private static final Logger LOGGER               = Logger.getLogger(Image.class.getName());
+    public static final float   DEFAULT_JPEG_QUALITY = 0.85f;
+
+    private BufferedImage       image;
+
+    public Image(BufferedImage image) {
+        this.image = image;
+    }
+
+    public Image(byte[] bytes) {
+        this.image = toBufferedImage(bytes);
+    }
+
+    public BufferedImage getBufferedImage() {
+        return image;
+    }
+
+    public int getColorSpaceType() {
+        return image.getColorModel().getColorSpace().getType();
+    }
+
+    public int getWidth() {
+        if (image == null) return 0;
+        return image.getWidth();
+    }
+
+    public int getHeight() {
+        if (image == null) return 0;
+        return image.getHeight();
+    }
+
+    /**
+     * æ ½å‰ªå›¾ç‰‡
+     * 
+     * @param w
+     * @param h
+     */
+    public void clip(int w, int h) {
+        if (image == null) {
+            throw new RuntimeException("image file not be load.please execute 'load' function agin.");
+        }
+
+        int iSrcWidth = getWidth(); // å¾—åˆ°æºå›¾å®½
+        int iSrcHeight = getHeight(); // å¾—åˆ°æºå›¾é•¿
+
+        // å¦‚æœæºå›¾ç‰‡çš„å®½åº¦å’Œé«˜åº¦å°äºç›®æ ‡å›¾ç‰‡çš„å®½åº¦æˆ–é«˜åº¦ï¼Œåˆ™ç›´æ¥è¿”å›åŸå›¾
+        if (iSrcWidth < w && iSrcHeight < h) {
+            LOGGER.warn("source image size too small.");
+            return;
+        }
+
+        int iDstLeft = (iSrcWidth - w) / 2;
+        int iDstTop = (iSrcHeight - h) / 2;
+
+        // å‰ªè£---
+        this.image = image.getSubimage(iDstLeft, iDstTop, w, h);
+
+    }
+
+    /**
+     * æ ½å‰ªå›¾ç‰‡
+     * 
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
+    public void clip(int x, int y, int w, int h) {
+        if (image == null) {
+            throw new RuntimeException("image file not be load.please execute 'load' function agin.");
+        }
+
+        int iSrcWidth = getWidth(); // å¾—åˆ°æºå›¾å®½
+        int iSrcHeight = getHeight(); // å¾—åˆ°æºå›¾é•¿
+
+        // å¦‚æœæºå›¾ç‰‡çš„å®½åº¦å’Œé«˜åº¦å°äºç›®æ ‡å›¾ç‰‡çš„å®½åº¦æˆ–é«˜åº¦ï¼Œåˆ™ç›´æ¥è¿”å›åŸå›¾
+        if (iSrcWidth < w && iSrcHeight < h) {
+            LOGGER.warn("source image size too small.");
+            return;
+        }
+
+        if (iSrcWidth < w) {
+            iSrcWidth = w;
+        }
+
+        if (iSrcHeight < h) {
+            iSrcHeight = h;
+        }
+
+        // å‰ªè£---
+        this.image = image.getSubimage(x, y, w, h);
+    }
+
+    /**
+     * ç¼©æ”¾å›¾ç‰‡åˆ°æŒ‡å®šå¤§å°
+     * 
+     * @param width
+     * @param height
+     */
+    public void zoomScale(int width, int height) {
+        this.image = zoomScale(image, width, height);
+    }
+
+    /**
+     * ç¼©æ”¾å›¾ç‰‡å¹¶ç”¨æŒ‡å®šè‰²å¡«å……
+     * 
+     * @param w
+     * @param h
+     * @param bgColor
+     */
+    public void zoomScale(int w, int h, Color bgColor) {
+        this.image = zoomScale(image, w, h, bgColor);
+    }
+
+    /**
+     * å°†å›¾ç‰‡ç­‰æ¯”ç¼©å°åˆ°å›ºå®šå®½åº¦,å¦‚æœåŸå›¾è¾ƒå°åˆ™ä¸ç¼©æ”¾.
+     * 
+     * @param data
+     * @param width
+     * @return
+     */
+    public void zoomScaleWidth(int width) {
+        try {
+            Image image = this;
+            int imgW = image.getWidth();
+            int imgH = image.getHeight();
+
+            double wRate = ((double) imgW / (double) width);
+
+            int height = (int) (imgH / wRate);
+
+            image.zoomScale(width, height);
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * å°†å›¾ç‰‡ç­‰æ¯”ç¼©å°åˆ°å›ºå®šå®½åº¦,å¦‚æœåŸå›¾è¾ƒå°åˆ™ä¸ç¼©æ”¾.
+     * 
+     * @param data
+     * @param width
+     * @return
+     */
+    public void zoomScaleHeight(int fixHeight) {
+        try {
+            Image image = this;
+            int imgW = image.getWidth();
+            int imgH = image.getHeight();
+
+            double hRate = ((double) imgH / (double) fixHeight);
+
+            int width = (int) (imgW / hRate);
+
+            image.zoomScale(width, fixHeight);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * å°†å›¾ç‰‡ç¼©æ”¾å‰ªåˆ‡åˆ°å›ºå®šå°ºå¯¸
+     * 
+     * @param data
+     * @param width
+     * @param height
+     * @return
+     */
+    public void zoomClip(int width, int height) {
+        try {
+
+            Image image = this;
+
+            int imgW = image.getWidth();
+            int imgH = image.getHeight();
+
+            if (imgW == width && imgH == height) {
+                return;
+            }
+
+            double wRate = ((double) imgW / (double) width);
+            double hRate = ((double) imgH / (double) height);
+
+            int zoomW = width;
+            int zoomH = height;
+
+            if (wRate < hRate) {
+                zoomW = (int) ((double) imgW / wRate) + 1;
+                zoomH = (int) ((double) imgH / wRate) + 1;
+            } else {
+                zoomW = (int) ((double) imgW / hRate) + 1;
+                zoomH = (int) ((double) imgH / hRate) + 1;
+            }
+
+            image.zoomScale(zoomW, zoomH);
+            image.clip(width, height);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void saveAs(File file, String format) throws IOException {
+        ImageIO.write(image, format, file);
+    }
+
+    public void saveAsJPEG(File file, float quality) throws IOException {
+        OutputStream bos = new FileOutputStream(file);
+        try {
+            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos);
+            JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
+            param.setQuality(quality, false);
+            encoder.setJPEGEncodeParam(param);
+            encoder.encode(image);
+            bos.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException e) {
+
+            }
+        }
+    }
+
+    public byte[] getBytes(String format) {
+        return getBytes(image, format);
+    }
+
+    public byte[] getJPEGBytes(float quality) {
+        return getJPEGBytes(image, quality);
+    }
+
+    /**
+     * ç»˜åˆ¶æ°´å°å›¾è±¡
+     * 
+     * @param markImage
+     * @param right
+     * @param bottom
+     * @param alpha
+     */
+    public void drawMarkImage(BufferedImage markImage, int right, int bottom, int colorType, boolean transluceny) {
+        // æ–°å›¾åƒ
+        int wideth = this.image.getWidth();
+        int height = this.image.getHeight();
+
+        BufferedImage tagImage = new BufferedImage(wideth, height, colorType);
+
+        Graphics g = tagImage.createGraphics();
+
+        // å¦‚æœä¸ºä¸é€æ˜ï¼Œåˆ™ç»˜åˆ¶ç™½è‰²åº•
+        if (!transluceny) {
+            Color c = g.getColor();
+            g.setColor(Color.WHITE);
+            g.fillRect(0, 0, wideth, height);
+            g.setColor(c);
+        }
+
+        // ç»˜åˆ¶åŸå›¾
+        g.drawImage(this.image, 0, 0, wideth, height, null);
+
+        // ç»˜åˆ¶æ°´å°æ–‡ä»¶
+        int markWidth = markImage.getWidth();
+        int markHeight = markImage.getHeight();
+        g.drawImage(markImage, wideth - markWidth - right, height - markHeight - bottom, markWidth, markHeight, null);
+        g.dispose();
+        this.image = tagImage;
+    }
+
+    public static byte[] read(File file) throws IOException {
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            return read(in);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+    }
+
+    public static byte[] read(URL url) throws IOException {
+        InputStream in = null;
+        try {
+            in = url.openStream();
+            return read(in);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+    }
+
+    public static byte[] read(InputStream in) throws IOException {
+        try {
+            byte[] datas = IOUtils.toByteArray(in);
+            return datas;
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+
+    public static String getFormatName(byte[] imgData) {
+        ImageInputStream input = null;
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(imgData);
+        try {
+            input = ImageIO.createImageInputStream(byteArrayInputStream);
+            Iterator<ImageReader> it = ImageIO.getImageReaders(input);
+            if (it.hasNext()) {
+                ImageReader reader = it.next();
+                return reader.getFormatName();
+            }
+        } catch (Exception e) {
+        } finally {
+            try {
+                if (input != null) {
+                    input.close();
+                }
+            } catch (Exception e) {
+            }
+            try {
+                byteArrayInputStream.close();
+            } catch (Exception e) {
+            }
+        }
+        return null;
+    }
+
+    public static Image parse(File file) throws IOException {
+        BufferedImage image = ImageIO.read(file);
+        return new Image(image);
+    }
+
+    public static Image parse(URL url) throws IOException {
+        InputStream in = null;
+        try {
+            in = url.openStream();
+            BufferedImage image = ImageIO.read(in);
+            return new Image(image);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
+
+    }
+
+    /**
+     * å°†å­—èŠ‚æ•°ç»„å›¾è±¡è½¬æ¢ä¸ºBufferedImageå¯¹è±¡
+     * 
+     * @param bytes
+     * @return
+     */
+    public static BufferedImage toBufferedImage(byte[] bytes) {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        try {
+            BufferedImage image = ImageIO.read(byteArrayInputStream);
+            return image;
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        } finally {
+            try {
+                byteArrayInputStream.close();
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    /**
+     * è½¬æ¢å›¾è±¡æˆæŒ‡å®šæ ¼å¼çš„å­—èŠ‚æµ
+     * 
+     * @param image
+     * @param format
+     * @return
+     */
+    public static byte[] getBytes(BufferedImage image, String format) {
+        if ("JPEG".equals(format.toUpperCase()) || "JPG".equals(format.toUpperCase())) {
+            return getJPEGBytes(image, DEFAULT_JPEG_QUALITY);
+        }
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, format, bos);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException e) {
+
+            }
+        }
+    }
+
+    /**
+     * å¯¹ä¸€ä¸ªå›¾åƒè¿›è¡Œæ—‹è½¬
+     * 
+     * @param image
+     * @param degree
+     * @return
+     */
+    public static BufferedImage rotate(BufferedImage image, int degree) {
+        int iw = image.getWidth();// åŸå§‹å›¾è±¡çš„å®½åº¦
+        int ih = image.getHeight();// åŸå§‹å›¾è±¡çš„é«˜åº¦
+        int w = 0;
+        int h = 0;
+        int x = 0;
+        int y = 0;
+        degree = degree % 360;
+        if (degree < 0) degree = 360 + degree;// å°†è§’åº¦è½¬æ¢åˆ°0-360åº¦ä¹‹é—´
+        double ang = degree * 0.0174532925;// å°†è§’åº¦è½¬ä¸ºå¼§åº¦
+
+        /**
+         * ç¡®å®šæ—‹è½¬åçš„å›¾è±¡çš„é«˜åº¦å’Œå®½åº¦
+         */
+
+        if (degree == 180 || degree == 0 || degree == 360) {
+            w = iw;
+            h = ih;
+        } else if (degree == 90 || degree == 270) {
+            w = ih;
+            h = iw;
+        } else {
+            int d = iw + ih;
+            w = (int) (d * Math.abs(Math.cos(ang)));
+            h = (int) (d * Math.abs(Math.sin(ang)));
+        }
+
+        x = (w / 2) - (iw / 2);// ç¡®å®šåŸç‚¹åæ ‡
+        y = (h / 2) - (ih / 2);
+        BufferedImage rotatedImage = new BufferedImage(w, h, image.getType());
+        Graphics gs = rotatedImage.getGraphics();
+        gs.fillRect(0, 0, w, h);// ä»¥ç»™å®šé¢œè‰²ç»˜åˆ¶æ—‹è½¬åå›¾ç‰‡çš„èƒŒæ™¯
+        AffineTransform at = new AffineTransform();
+        at.rotate(ang, w / 2, h / 2);// æ—‹è½¬å›¾è±¡
+        at.translate(x, y);
+        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        op.filter(image, rotatedImage);
+        image = rotatedImage;
+        return image;
+    }
+
+    /**
+     * è‡ªåŠ¨ç­‰æ¯”ç¼©æ”¾ä¸€ä¸ªå›¾ç‰‡ï¼Œå¤šä½™çš„éƒ¨åˆ†ï¼Œç”¨ç»™å®šèƒŒæ™¯é¢œè‰²è¡¥ä¸Š
+     * 
+     * @param im
+     * @param w
+     * @param h
+     * @param bgColor
+     * @return
+     */
+    public static BufferedImage zoomScale(BufferedImage im, int w, int h, Color bgColor) {
+        if (w == -1 || h == -1) {
+            return zoomScale(im, w, h);
+        }
+
+        // æ£€æŸ¥èƒŒæ™¯é¢œè‰²
+        bgColor = null == bgColor ? Color.black : bgColor;
+        // è·å¾—å°ºå¯¸
+        int oW = im.getWidth();
+        int oH = im.getHeight();
+        float oR = (float) oW / (float) oH;
+        float nR = (float) w / (float) h;
+
+        int nW, nH, x, y;
+        /*
+         * ç¼©æ”¾
+         */
+        // åŸå›¾å¤ªå®½ï¼Œè®¡ç®—å½“åŸå›¾ä¸ç”»å¸ƒåŒé«˜æ—¶ï¼ŒåŸå›¾çš„ç­‰æ¯”å®½åº¦
+        if (oR > nR) {
+            nW = w;
+            nH = (int) (((float) w) / oR);
+            x = 0;
+            y = (h - nH) / 2;
+        }
+        // åŸå›¾å¤ªé•¿
+        else if (oR < nR) {
+            nH = h;
+            nW = (int) (((float) h) * oR);
+            x = (w - nW) / 2;
+            y = 0;
+        }
+        // æ¯”ä¾‹ç›¸åŒ
+        else {
+            nW = w;
+            nH = h;
+            x = 0;
+            y = 0;
+        }
+
+        // åˆ›å»ºå›¾åƒ
+        BufferedImage re = new BufferedImage(w, h, ColorSpace.TYPE_RGB);
+        // å¾—åˆ°ä¸€ä¸ªç»˜åˆ¶æ¥å£
+        Graphics gc = re.getGraphics();
+        gc.setColor(bgColor);
+        gc.fillRect(0, 0, w, h);
+        gc.drawImage(im, x, y, nW, nH, bgColor, null);
+        // è¿”å›
+        return re;
+    }
+
+    /**
+     * è‡ªåŠ¨ç­‰æ¯”ç¼©æ”¾ä¸€ä¸ªå›¾ç‰‡
+     * 
+     * @param im
+     * @param w
+     * @param h
+     * @return
+     */
+    public static BufferedImage zoomScale(BufferedImage im, int w, int h) {
+        // è·å¾—å°ºå¯¸
+        int oW = im.getWidth();
+        int oH = im.getHeight();
+
+        int nW = w, nH = h;
+
+        /*
+         * ç¼©æ”¾
+         */
+        // æœªæŒ‡å®šå›¾åƒé«˜åº¦ï¼Œæ ¹æ®åŸå›¾å°ºå¯¸è®¡ç®—å‡ºé«˜åº¦
+        if (h == -1) {
+            nH = (int) ((float) w / oW * oH);
+        }
+        // æœªæŒ‡å®šå›¾åƒå®½åº¦ï¼Œæ ¹æ®åŸå›¾å°ºå¯¸è®¡ç®—å‡ºå®½åº¦
+        else if (w == -1) {
+            nW = (int) ((float) h / oH * oW);
+        }
+
+        // åˆ›å»ºå›¾åƒ
+        BufferedImage re = new BufferedImage(nW, nH, ColorSpace.TYPE_RGB);
+        re.getGraphics().drawImage(im, 0, 0, nW, nH, null);
+        // è¿”å›
+        return re;
+    }
+
+    /**
+     * è‡ªåŠ¨ç¼©æ”¾å‰ªåˆ‡ä¸€ä¸ªå›¾ç‰‡ï¼Œä»¤å…¶ç¬¦åˆç»™å®šçš„å°ºå¯¸
+     * 
+     * @param im
+     * @param w
+     * @param h
+     * @return
+     */
+    public static BufferedImage clipScale(BufferedImage im, int w, int h) {
+        // è·å¾—å°ºå¯¸
+        int oW = im.getWidth();
+        int oH = im.getHeight();
+        float oR = (float) oW / (float) oH;
+        float nR = (float) w / (float) h;
+
+        int nW, nH, x, y;
+        /*
+         * è£å‡
+         */
+        // åŸå›¾å¤ªå®½ï¼Œè®¡ç®—å½“åŸå›¾ä¸ç”»å¸ƒåŒé«˜æ—¶ï¼ŒåŸå›¾çš„ç­‰æ¯”å®½åº¦
+        if (oR > nR) {
+            nW = (h * oW) / oH;
+            nH = h;
+            x = (w - nW) / 2;
+            y = 0;
+        }
+        // åŸå›¾å¤ªé•¿
+        else if (oR < nR) {
+            nW = w;
+            nH = (w * oH) / oW;
+            x = 0;
+            y = (h - nH) / 2;
+        }
+        // æ¯”ä¾‹ç›¸åŒ
+        else {
+            nW = w;
+            nH = h;
+            x = 0;
+            y = 0;
+        }
+        // åˆ›å»ºå›¾åƒ
+        BufferedImage re = new BufferedImage(w, h, ColorSpace.TYPE_RGB);
+        re.getGraphics().drawImage(im, x, y, nW, nH, Color.black, null);
+        // è¿”å›
+        return re;
+    }
+
+    /**
+     * è½¬æ¢å›¾åƒä¸ºJPEGå­—èŠ‚æµ
+     * 
+     * @param image
+     * @param quality
+     * @return
+     */
+    public static byte[] getJPEGBytes(BufferedImage image, float quality) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos);
+            JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
+            param.setQuality(quality, false);
+            encoder.setJPEGEncodeParam(param);
+            encoder.encode(image);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException e) {
+
+            }
+        }
+    }
+
+    /**
+     * è·å¾—å›¾åƒé¢œè‰²ç©ºé—´ç±»å‹
+     * 
+     * @param image
+     * @return
+     */
+    public static int getColorSpaceType(BufferedImage image) {
+        return image.getColorModel().getColorSpace().getType();
+    }
+
+    /**
+     * è§£ç JPEGæ–‡ä»¶
+     * 
+     * @param file
+     * @return
+     * @throws java.io.IOException
+     */
+    public static BufferedImage decodeJPEG(File file) throws IOException {
+        InputStream input = new FileInputStream(file);
+        try {
+            JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(input);
+            BufferedImage image = decoder.decodeAsBufferedImage();
+            return image;
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            input.close();
+        }
+    }
+
+    /**
+     * è§£ç JPEGå­—èŠ‚
+     * 
+     * @param bytes
+     * @return
+     */
+    public static BufferedImage decodeJPEG(byte[] bytes) {
+        ByteArrayInputStream input = new ByteArrayInputStream(bytes);
+        try {
+            return decodeJPEG(input);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(input);
+        }
+    }
+
+    /**
+     * è§£ç JPEGæµ
+     * 
+     * @param input
+     * @return
+     * @throws java.io.IOException
+     */
+    public static BufferedImage decodeJPEG(InputStream input) throws IOException {
+        JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(input);
+        BufferedImage image = decoder.decodeAsBufferedImage();
+        return image;
+    }
+
+    /**
+     * CMYKè·å–JPEG4å›¾åƒ
+     * 
+     * @param raster
+     * @return
+     */
+    public static BufferedImage cymk2jpeg(Raster raster) {
+        int w = raster.getWidth();
+        int h = raster.getHeight();
+        byte[] rgb = new byte[w * h * 3];
+
+        float[] Y = raster.getSamples(0, 0, w, h, 0, (float[]) null);
+        float[] Cb = raster.getSamples(0, 0, w, h, 1, (float[]) null);
+        float[] Cr = raster.getSamples(0, 0, w, h, 2, (float[]) null);
+        float[] K = raster.getSamples(0, 0, w, h, 3, (float[]) null);
+
+        for (int i = 0, imax = Y.length, base = 0; i < imax; i++, base += 3) {
+            float k = 220 - K[i], y = 255 - Y[i], cb = 255 - Cb[i], cr = 255 - Cr[i];
+
+            double val = y + 1.402 * (cr - 128) - k;
+            val = (val - 128) * .65f + 128;
+            rgb[base] = val < 0.0 ? (byte) 0 : val > 255.0 ? (byte) 0xff : (byte) (val + 0.5);
+
+            val = y - 0.34414 * (cb - 128) - 0.71414 * (cr - 128) - k;
+            val = (val - 128) * .65f + 128;
+            rgb[base + 1] = val < 0.0 ? (byte) 0 : val > 255.0 ? (byte) 0xff : (byte) (val + 0.5);
+
+            val = y + 1.772 * (cb - 128) - k;
+            val = (val - 128) * .65f + 128;
+            rgb[base + 2] = val < 0.0 ? (byte) 0 : val > 255.0 ? (byte) 0xff : (byte) (val + 0.5);
+        }
+
+        raster = Raster.createInterleavedRaster(new DataBufferByte(rgb, rgb.length), w, h, w * 3, 3, new int[] { 0, 1,
+                2 }, null);
+
+        ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+        ColorModel cm = new ComponentColorModel(cs, false, true, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
+        return new BufferedImage(cm, (WritableRaster) raster, true, null);
+    }
+
+    public static final int TYPE_INT_RGB        = 1;
+
+    public static final int TYPE_INT_ARGB       = 2;
+
+    public static final int TYPE_INT_ARGB_PRE   = 3;
+
+    public static final int TYPE_INT_BGR        = 4;
+
+    public static final int TYPE_3BYTE_BGR      = 5;
+
+    public static final int TYPE_4BYTE_ABGR     = 6;
+
+    public static final int TYPE_4BYTE_ABGR_PRE = 7;
+
+    public static final int TYPE_USHORT_565_RGB = 8;
+
+    public static final int TYPE_USHORT_555_RGB = 9;
+
+    public static final int TYPE_BYTE_GRAY      = 10;
+
+    public static final int TYPE_USHORT_GRAY    = 11;
+
+    public static final int TYPE_BYTE_BINARY    = 12;
+
+    public static final int TYPE_BYTE_INDEXED   = 13;
 
 }

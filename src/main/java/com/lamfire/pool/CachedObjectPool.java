@@ -1,20 +1,13 @@
 package com.lamfire.pool;
 
-/**
- * Created with IntelliJ IDEA.
- * User: lamfire
- * Date: 15-2-27
- * Time: ÉÏÎç10:24
- * To change this template use File | Settings | File Templates.
- */
 public class CachedObjectPool<E> extends ObjectPool<E> {
 
     public CachedObjectPool(PoolableObjectFactory<E> objectFactory) {
         super(objectFactory);
     }
 
-    public synchronized void returnObject(E e){
-        if(getIdle() >= getMaxIdle()){
+    public synchronized void returnObject(E e) {
+        if (getIdle() >= getMaxIdle()) {
             destroy(e);
             return;
         }
@@ -23,29 +16,26 @@ public class CachedObjectPool<E> extends ObjectPool<E> {
         this.notifyAll();
     }
 
-    public synchronized E borrowObject(){
+    public synchronized E borrowObject() {
         E result = null;
-        do{
-            if(super.isEmpty()){
+        do {
+            if (super.isEmpty()) {
                 make();
             }
             E e = super.removeFirst();
             activate(e);
-            if(validate(e)){
+            if (validate(e)) {
                 result = e;
-            }else{
+            } else {
                 destroy(e);
             }
-        }while(result == null);
+        } while (result == null);
         return result;
     }
 
     @Override
     public String toString() {
-        return "CachedObjectPool{" +
-                "maxIdle=" + getMaxIdle() +
-                ", instance=" + getInstanceSize() +
-                ", idle=" +  getIdle() +
-                '}';
+        return "CachedObjectPool{" + "maxIdle=" + getMaxIdle() + ", instance=" + getInstanceSize() + ", idle="
+               + getIdle() + '}';
     }
 }

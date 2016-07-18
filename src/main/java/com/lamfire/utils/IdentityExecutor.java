@@ -3,40 +3,40 @@ package com.lamfire.utils;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
- * ´ø±êÊ¶µÄ¶àÏß³ÌÖ´ĞĞÆ÷
- * User: linfan
- * Date: 15-6-12
- * Time: ÏÂÎç3:00
- * To change this template use File | Settings | File Templates.
+ * å¸¦æ ‡è¯†çš„å¤šçº¿ç¨‹æ‰§è¡Œå™¨
  */
-public class IdentityExecutor{
-    private final Set<Serializable> taskIds = Sets.newHashSet();
-    private ExecutorService service;
+public class IdentityExecutor {
 
-    public  IdentityExecutor(ExecutorService service){
+    private final Set<Serializable> taskIds = Sets.newHashSet();
+    private ExecutorService         service;
+
+    public IdentityExecutor(ExecutorService service) {
         this.service = service;
     }
 
-    public Set<Serializable> getWaitingTaskIds(){
+    public Set<Serializable> getWaitingTaskIds() {
         return taskIds;
     }
 
     /**
-     * Ìá½»ÈÎÎñ
+     * æäº¤ä»»åŠ¡
+     * 
      * @param id
      * @param task
      * @return
-     * @throws TaskExistsException µ±¸ÃÈÎÎñID»¹´æÔÚÓÚ¶ÓÁĞÖĞ,ÔòÅ×³öÒì³£
+     * @throws TaskExistsException å½“è¯¥ä»»åŠ¡IDè¿˜å­˜åœ¨äºé˜Ÿåˆ—ä¸­,åˆ™æŠ›å‡ºå¼‚å¸¸
      */
-    public synchronized Future<?> submit(Serializable id ,Runnable task)throws TaskExistsException{
-        if(taskIds.contains(id)){
-            throw new TaskExistsException("Failed submit task,identity exists - "+id.toString());
+    public synchronized Future<?> submit(Serializable id, Runnable task) throws TaskExistsException {
+        if (taskIds.contains(id)) {
+            throw new TaskExistsException("Failed submit task,identity exists - " + id.toString());
         }
         taskIds.add(id);
-        return service.submit(new Task(id,task));
+        return service.submit(new Task(id, task));
     }
 
     public void shutdown() {
@@ -47,30 +47,35 @@ public class IdentityExecutor{
         return service.shutdownNow();
     }
 
-    public void awaitTermination(long timeout,TimeUnit unit) throws InterruptedException {
-        service.awaitTermination(timeout,unit) ;
+    public void awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+        service.awaitTermination(timeout, unit);
     }
 
-    public class TaskExistsException extends Exception{
-        public TaskExistsException(String message){
+    public class TaskExistsException extends Exception {
+
+        private static final long serialVersionUID = 3792731443027168307L;
+
+        public TaskExistsException(String message) {
             super(message);
         }
     }
 
-    private class Task implements Runnable{
-        private Serializable id;
-        private Runnable realTask;
+    private class Task implements Runnable {
 
-        public Task(Serializable id,Runnable runTask){
+        private Serializable id;
+        private Runnable     realTask;
+
+        public Task(Serializable id, Runnable runTask) {
             this.id = id;
             this.realTask = runTask;
         }
+
         @Override
         public void run() {
-            try{
+            try {
                 this.realTask.run();
-            }finally {
-               taskIds.remove(id);
+            } finally {
+                taskIds.remove(id);
             }
         }
     }
