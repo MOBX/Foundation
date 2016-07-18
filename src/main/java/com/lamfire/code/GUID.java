@@ -1,15 +1,16 @@
 package com.lamfire.code;
 
-import com.lamfire.utils.MACAddressUtils;
-
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.lamfire.utils.MACAddressUtils;
+
 public class GUID {
+
     private static final AtomicInteger INC = new AtomicInteger();
-    private static Random RND;
-    private static long HDID;
+    private static Random              RND;
+    private static long                HDID;
 
     static {
         if (System.getProperty("java.security.egd") == null) {
@@ -36,7 +37,6 @@ public class GUID {
                 .append(RND.nextLong());
         return MD5.digest(buffer.toString().getBytes());
     }
-
 
     public static String makeAsString() {
         return Hex.encode(make());

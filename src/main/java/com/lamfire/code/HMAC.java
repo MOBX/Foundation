@@ -1,16 +1,12 @@
 package com.lamfire.code;
 
-/**
- * Created by lamfire on 16/3/24.
- */
 public class HMAC {
 
     private Hash hash;
 
-    public HMAC(Hash hash){
+    public HMAC(Hash hash) {
         this.hash = hash;
     }
-
 
     public byte[] digest(byte[] key, byte[] data) {
         int length = 64;
@@ -25,8 +21,8 @@ public class HMAC {
         byte[] keyArr = new byte[length]; // Key bytes of 64 bytes length
 
         /*
-         * If key's length is longer than 64,then use hash to digest it and use
-         * the result as actual key. Èç¹ûÃÜÔ¿³¤¶È£¬´óÓÚ64×Ö½Ú£¬¾ÍÊ¹ÓÃ¹şÏ£Ëã·¨£¬¼ÆËãÆäÕªÒª£¬×÷ÎªÕæÕıµÄÃÜÔ¿¡£
+         * If key's length is longer than 64,then use hash to digest it and use the result as actual key.
+         * å¦‚æœå¯†é’¥é•¿åº¦ï¼Œå¤§äº64å­—èŠ‚ï¼Œå°±ä½¿ç”¨å“ˆå¸Œç®—æ³•ï¼Œè®¡ç®—å…¶æ‘˜è¦ï¼Œä½œä¸ºçœŸæ­£çš„å¯†é’¥ã€‚
          */
 
         if (key.length > length) {
@@ -42,7 +38,7 @@ public class HMAC {
         }
 
         /*
-         * append zeros to K Èç¹ûÃÜÔ¿³¤¶È²»×ã64×Ö½Ú£¬¾ÍÊ¹ÓÃ0x00²¹Æëµ½64×Ö½Ú¡£
+         * append zeros to K å¦‚æœå¯†é’¥é•¿åº¦ä¸è¶³64å­—èŠ‚ï¼Œå°±ä½¿ç”¨0x00è¡¥é½åˆ°64å­—èŠ‚ã€‚
          */
 
         if (actualKey.length < length) {
@@ -52,7 +48,7 @@ public class HMAC {
         }
 
         /*
-         * calc K XOR ipad Ê¹ÓÃÃÜÔ¿ºÍipad½øĞĞÒì»òÔËËã¡£
+         * calc K XOR ipad ä½¿ç”¨å¯†é’¥å’Œipadè¿›è¡Œå¼‚æˆ–è¿ç®—ã€‚
          */
 
         byte[] kIpadXorResult = new byte[length];
@@ -61,7 +57,7 @@ public class HMAC {
         }
 
         /*
-         * append "text" to the end of "K XOR ipad" ½«´ı¼ÓÃÜÊı¾İ×·¼Óµ½K XOR ipad¼ÆËã½á¹ûºóÃæ¡£
+         * append "text" to the end of "K XOR ipad" å°†å¾…åŠ å¯†æ•°æ®è¿½åŠ åˆ°K XOR ipadè®¡ç®—ç»“æœåé¢ã€‚
          */
 
         byte[] firstAppendResult = new byte[kIpadXorResult.length + data.length];
@@ -73,16 +69,14 @@ public class HMAC {
             firstAppendResult[i + keyArr.length] = data[i];
         }
 
-
-
         /*
-         * calc H(K XOR ipad, text) Ê¹ÓÃ¹şÏ£Ëã·¨¼ÆËãÉÏÃæ½á¹ûµÄÕªÒª¡£
+         * calc H(K XOR ipad, text) ä½¿ç”¨å“ˆå¸Œç®—æ³•è®¡ç®—ä¸Šé¢ç»“æœçš„æ‘˜è¦ã€‚
          */
 
         byte[] firstHashResult = hash.hashDigest(firstAppendResult);
 
         /*
-         * calc K XOR opad Ê¹ÓÃÃÜÔ¿ºÍopad½øĞĞÒì»òÔËËã¡£
+         * calc K XOR opad ä½¿ç”¨å¯†é’¥å’Œopadè¿›è¡Œå¼‚æˆ–è¿ç®—ã€‚
          */
 
         byte[] kOpadXorResult = new byte[length];
@@ -91,8 +85,7 @@ public class HMAC {
         }
 
         /*
-         * append "H(K XOR ipad, text)" to the end of "K XOR opad" ½«H(K XOR
-         * ipad, text)½á¹û×·¼Óµ½K XOR opad½á¹ûºóÃæ
+         * append "H(K XOR ipad, text)" to the end of "K XOR opad" å°†H(K XOR ipad, text)ç»“æœè¿½åŠ åˆ°K XOR opadç»“æœåé¢
          */
 
         byte[] secondAppendResult = new byte[kOpadXorResult.length + firstHashResult.length];
@@ -106,12 +99,11 @@ public class HMAC {
         }
 
         /*
-         * H(K XOR opad, H(K XOR ipad, text)) ¶ÔÉÏÃæµÄÊı¾İ½øĞĞ¹şÏ£ÔËËã¡£
+         * H(K XOR opad, H(K XOR ipad, text)) å¯¹ä¸Šé¢çš„æ•°æ®è¿›è¡Œå“ˆå¸Œè¿ç®—ã€‚
          */
 
         byte[] result = hash.hashDigest(secondAppendResult);
         return result;
 
     }
-
 }

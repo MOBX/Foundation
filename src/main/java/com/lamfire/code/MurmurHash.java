@@ -1,62 +1,39 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.lamfire.code;
 
-import java.nio.ByteBuffer;
-
 /**
- * MurmurHashËã·¨£º¸ßÔËËãĞÔÄÜ£¬µÍÅö×²ÂÊµÄhashËã·¨.
- * ÊÇÒ»¸ö¿ìËÙ¿É¿¿µÄÉú³É¸÷ÖÖ¹şÏ£Êı¾İµÄº¯Êı,Ö§³Ö 32Î»µ½128Î»µÄ¹şÏ£Öµ¡£
- * ÓÉAustin Appleby´´½¨ÓÚ2008Äê£¬ÏÖÒÑÓ¦ÓÃµ½Hadoop¡¢libstdc++¡¢nginx¡¢libmemcachedµÈ¿ªÔ´ÏµÍ³¡£
- * 2011ÄêAppleby±»Google¹ÍÓ¶£¬ËæºóGoogleÍÆ³öÆä±äÖÖµÄCityHashËã·¨¡£
- * @author lamfire
- *
+ * MurmurHashç®—æ³•ï¼šé«˜è¿ç®—æ€§èƒ½ï¼Œä½ç¢°æ’ç‡çš„hashç®—æ³•. æ˜¯ä¸€ä¸ªå¿«é€Ÿå¯é çš„ç”Ÿæˆå„ç§å“ˆå¸Œæ•°æ®çš„å‡½æ•°,æ”¯æŒ 32ä½åˆ°128ä½çš„å“ˆå¸Œå€¼ã€‚ ç”±Austin
+ * Applebyåˆ›å»ºäº2008å¹´ï¼Œç°å·²åº”ç”¨åˆ°Hadoopã€libstdc++ã€nginxã€libmemcachedç­‰å¼€æºç³»ç»Ÿã€‚ 2011å¹´Applebyè¢«Googleé›‡ä½£ï¼ŒéšåGoogleæ¨å‡ºå…¶å˜ç§çš„CityHashç®—æ³•ã€‚
  */
-public class MurmurHash
-{
-	private MurmurHash(){}
+public class MurmurHash {
+
+    private MurmurHash() {
+    }
 
     public static int hash32(final byte[] data) {
         return hash32(data, data.length, -1);
     }
-	
-	public static int hash32(byte[] bytes,int seed){
-		return hash32(bytes,0,bytes.length,seed);
-	}
 
-    public static int hash32(byte[] bytes,int offset, int length){
-        return hash32(bytes,offset,length,-1);
+    public static int hash32(byte[] bytes, int seed) {
+        return hash32(bytes, 0, bytes.length, seed);
+    }
+
+    public static int hash32(byte[] bytes, int offset, int length) {
+        return hash32(bytes, offset, length, -1);
     }
 
     public static long hash64(final byte[] data) {
-        return hash64(data,0, data.length, 0xe17a1465);
-    }
-	
-	public static long hash64(byte[] bytes,int seed){
-		return hash64(bytes,0,bytes.length,seed);
-	}
-
-    public static long hash64(byte[] bytes,int offset, int length){
-        return hash64(bytes,offset,length,0xe17a1465);
+        return hash64(data, 0, data.length, 0xe17a1465);
     }
 
-    public static int hash32(byte[] data,int offset, int length, int seed) {
+    public static long hash64(byte[] bytes, int seed) {
+        return hash64(bytes, 0, bytes.length, seed);
+    }
+
+    public static long hash64(byte[] bytes, int offset, int length) {
+        return hash64(bytes, offset, length, 0xe17a1465);
+    }
+
+    public static int hash32(byte[] data, int offset, int length, int seed) {
         int m = 0x5bd1e995;
         int r = 24;
 
@@ -66,13 +43,13 @@ public class MurmurHash
 
         for (int i = 0; i < len_4; i++) {
             int i_4 = i << 2;
-            int k = data[offset+i_4 + 3];
+            int k = data[offset + i_4 + 3];
             k = k << 8;
-            k = k | (data[offset+i_4 + 2] & 0xff);
+            k = k | (data[offset + i_4 + 2] & 0xff);
             k = k << 8;
-            k = k | (data[offset+i_4 + 1] & 0xff);
+            k = k | (data[offset + i_4 + 1] & 0xff);
             k = k << 8;
-            k = k | (data[offset+i_4 + 0] & 0xff);
+            k = k | (data[offset + i_4 + 0] & 0xff);
             k *= m;
             k ^= k >>> r;
             k *= m;
@@ -105,7 +82,7 @@ public class MurmurHash
         return h;
     }
 
-    public static long hash64(final byte[] data, int offset,int length, int seed) {
+    public static long hash64(final byte[] data, int offset, int length, int seed) {
         final long m = 0xc6a4a7935bd1e995L;
         final int r = 47;
 
@@ -116,9 +93,9 @@ public class MurmurHash
         for (int i = 0; i < length8; i++) {
             final int i8 = i * 8;
             long k = ((long) data[offset + i8 + 0] & 0xff) + (((long) data[offset + i8 + 1] & 0xff) << 8)
-                    + (((long) data[offset + i8 + 2] & 0xff) << 16) + (((long) data[offset + i8 + 3] & 0xff) << 24)
-                    + (((long) data[offset + i8 + 4] & 0xff) << 32) + (((long) data[offset + i8 + 5] & 0xff) << 40)
-                    + (((long) data[offset + i8 + 6] & 0xff) << 48) + (((long) data[offset + i8 + 7] & 0xff) << 56);
+                     + (((long) data[offset + i8 + 2] & 0xff) << 16) + (((long) data[offset + i8 + 3] & 0xff) << 24)
+                     + (((long) data[offset + i8 + 4] & 0xff) << 32) + (((long) data[offset + i8 + 5] & 0xff) << 40)
+                     + (((long) data[offset + i8 + 6] & 0xff) << 48) + (((long) data[offset + i8 + 7] & 0xff) << 56);
 
             k *= m;
             k ^= k >>> r;

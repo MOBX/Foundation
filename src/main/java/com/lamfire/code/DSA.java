@@ -1,119 +1,88 @@
 package com.lamfire.code;
 
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.Signature;
+import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class DSA {
-	public static final String ALGORITHM = "DSA";
-	private static final int KEY_SIZE = 1024;
 
-	public static String sign(byte[] data, String privateKey) throws Exception {
-		// ½âÃÜÓÉbase64±àÂëµÄË½Ô¿
-		byte[] keyBytes = Base64.decode(privateKey);
+    public static final String ALGORITHM = "DSA";
+    private static final int   KEY_SIZE  = 1024;
 
-		// ¹¹ÔìPKCS8EncodedKeySpec¶ÔÏó
-		PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
+    public static String sign(byte[] data, String privateKey) throws Exception {
+        // è§£å¯†ç”±base64ç¼–ç çš„ç§é’¥
+        byte[] keyBytes = Base64.decode(privateKey);
 
-		// KEY_ALGORITHM Ö¸¶¨µÄ¼ÓÃÜËã·¨
-		KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
+        // æ„é€ PKCS8EncodedKeySpecå¯¹è±¡
+        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
 
-		// È¡Ë½Ô¿³×¶ÔÏó
-		PrivateKey priKey = keyFactory.generatePrivate(pkcs8KeySpec);
+        // KEY_ALGORITHM æŒ‡å®šçš„åŠ å¯†ç®—æ³•
+        KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
 
-		// ÓÃË½Ô¿¶ÔĞÅÏ¢Éú³ÉÊı×ÖÇ©Ãû
-		Signature signature = Signature.getInstance(keyFactory.getAlgorithm());
-		signature.initSign(priKey);
-		signature.update(data);
+        // å–ç§é’¥åŒ™å¯¹è±¡
+        PrivateKey priKey = keyFactory.generatePrivate(pkcs8KeySpec);
 
-		return Base64.encode(signature.sign());
-	}
+        // ç”¨ç§é’¥å¯¹ä¿¡æ¯ç”Ÿæˆæ•°å­—ç­¾å
+        Signature signature = Signature.getInstance(keyFactory.getAlgorithm());
+        signature.initSign(priKey);
+        signature.update(data);
 
-	public static boolean verify(byte[] data, String publicKey, String sign) throws Exception {
+        return Base64.encode(signature.sign());
+    }
 
-		// ½âÃÜÓÉbase64±àÂëµÄ¹«Ô¿
-		byte[] keyBytes = Base64.decode(publicKey);
+    public static boolean verify(byte[] data, String publicKey, String sign) throws Exception {
 
-		// ¹¹ÔìX509EncodedKeySpec¶ÔÏó
-		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+        // è§£å¯†ç”±base64ç¼–ç çš„å…¬é’¥
+        byte[] keyBytes = Base64.decode(publicKey);
 
-		// ALGORITHM Ö¸¶¨µÄ¼ÓÃÜËã·¨
-		KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
+        // æ„é€ X509EncodedKeySpecå¯¹è±¡
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
 
-		// È¡¹«Ô¿³×¶ÔÏó
-		PublicKey pubKey = keyFactory.generatePublic(keySpec);
+        // ALGORITHM æŒ‡å®šçš„åŠ å¯†ç®—æ³•
+        KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
 
-		Signature signature = Signature.getInstance(keyFactory.getAlgorithm());
-		signature.initVerify(pubKey);
-		signature.update(data);
+        // å–å…¬é’¥åŒ™å¯¹è±¡
+        PublicKey pubKey = keyFactory.generatePublic(keySpec);
 
-		// ÑéÖ¤Ç©ÃûÊÇ·ñÕı³£
-		return signature.verify(Base64.decode(sign));
-	}
-	
-	public static KeyPair genKeyPair(String seed) throws Exception {
-		KeyPairGenerator keygen = KeyPairGenerator.getInstance(ALGORITHM);
-		// ³õÊ¼»¯Ëæ»ú²úÉúÆ÷
-		SecureRandom secureRandom = new SecureRandom();
-		secureRandom.setSeed(seed.getBytes());
-		keygen.initialize(KEY_SIZE, secureRandom);
-		KeyPair keyPair = keygen.genKeyPair();
-		return keyPair;
-	}
+        Signature signature = Signature.getInstance(keyFactory.getAlgorithm());
+        signature.initVerify(pubKey);
+        signature.update(data);
 
-	/**
-	 * »ñÈ¡Ë½Ô¿
-	 * @param keyPair
-	 * @return
-	 * @throws Exception
-	 */
-	public static String getPrivateKey(KeyPair keyPair) throws Exception {
-		Key key = keyPair.getPrivate();
-		return Base64.encode(key.getEncoded());
-	}
+        // éªŒè¯ç­¾åæ˜¯å¦æ­£å¸¸
+        return signature.verify(Base64.decode(sign));
+    }
 
-	/**
-	 * »ñÈ¡¹«Ô¿
-	 * @param keyPair
-	 * @return
-	 * @throws Exception
-	 */
-	public static String getPublicKey(KeyPair keyPair) throws Exception {
-		Key key = keyPair.getPublic();
-		return Base64.encode(key.getEncoded());
-	}
+    public static KeyPair genKeyPair(String seed) throws Exception {
+        KeyPairGenerator keygen = KeyPairGenerator.getInstance(ALGORITHM);
+        // åˆå§‹åŒ–éšæœºäº§ç”Ÿå™¨
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.setSeed(seed.getBytes());
+        keygen.initialize(KEY_SIZE, secureRandom);
+        KeyPair keyPair = keygen.genKeyPair();
+        return keyPair;
+    }
 
-	
-	
-	
-	public static void main(String[] args) throws Exception{
-		String inputStr = "abc";  
-        byte[] data = inputStr.getBytes();  
-  
-        // ¹¹½¨ÃÜÔ¿  
-        KeyPair keyPair = DSA.genKeyPair("111111111111111111111111");
-  
-        // »ñµÃÃÜÔ¿  
-        String publicKey = DSA.getPublicKey(keyPair);  
-        String privateKey = DSA.getPrivateKey(keyPair);  
-  
-        System.err.println("¹«Ô¿:\r" + publicKey);  
-        System.err.println("Ë½Ô¿:\r" + privateKey);  
-  
-        // ²úÉúÇ©Ãû  
-        String sign = DSA.sign(data, privateKey);  
-        System.err.println("Ç©Ãû:\r" + sign);  
-  
-        // ÑéÖ¤Ç©Ãû  
-        boolean status = DSA.verify(data, publicKey, sign);  
-        System.err.println("×´Ì¬:\r" + status);  
-        
-	}
+    /**
+     * è·å–ç§é’¥
+     * 
+     * @param keyPair
+     * @return
+     * @throws Exception
+     */
+    public static String getPrivateKey(KeyPair keyPair) throws Exception {
+        Key key = keyPair.getPrivate();
+        return Base64.encode(key.getEncoded());
+    }
+
+    /**
+     * è·å–å…¬é’¥
+     * 
+     * @param keyPair
+     * @return
+     * @throws Exception
+     */
+    public static String getPublicKey(KeyPair keyPair) throws Exception {
+        Key key = keyPair.getPublic();
+        return Base64.encode(key.getEncoded());
+    }
 }

@@ -5,92 +5,90 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class AlgorithmCoder {
-	
-	public static final class Blowfish{
-		// ³õÊ¼»¯ÏòÁ¿
-		public static final byte[] InitializationVector = new byte[8];
 
-		// ×ª»»Ä£Ê½
-		public static final String Transformation_CBC_PKCS5Padding = "Blowfish/CBC/PKCS5Padding";
+    public static final class Blowfish {
 
-		// ÃÜÔ¿Ëã·¨Ãû³Æ
-		public static final String AlgorithmName = "Blowfish";
-	}
-	
-	public static final class Aes{
-		// ³õÊ¼»¯ÏòÁ¿
-		public static final byte[] InitializationVector = new byte[16];
+        // åˆå§‹åŒ–å‘é‡
+        public static final byte[] InitializationVector            = new byte[8];
 
-		// ×ª»»Ä£Ê½
-		public static final String Transformation_CBC_PKCS5Padding = "AES/CBC/PKCS5Padding";
+        // è½¬æ¢æ¨¡å¼
+        public static final String Transformation_CBC_PKCS5Padding = "Blowfish/CBC/PKCS5Padding";
 
-		// ÃÜÔ¿Ëã·¨Ãû³Æ
-		public static final String AlgorithmName = "AES";
-	}
-	
+        // å¯†é’¥ç®—æ³•åç§°
+        public static final String AlgorithmName                   = "Blowfish";
+    }
 
-	private String algorithmName = null;
-	private String transformation = null;
-	private byte[] initializationVector = null;
-	
-	public AlgorithmCoder(String algorithmName, String transformation){
-		this.algorithmName = algorithmName;
-		this.transformation = transformation;
-	}
-	
-	public AlgorithmCoder(String algorithmName, String transformation,byte[] initVector){
-		this.algorithmName = algorithmName;
-		this.transformation = transformation;
-		this.initializationVector = initVector;
-	}
-	
-	public byte[] encode(byte[] source,byte[] key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException,
-			IllegalBlockSizeException, BadPaddingException {
-		// ¸ù¾İ¸ø¶¨µÄ×Ö½ÚÊı×é¹¹ÔìÒ»¸öÃÜÔ¿ Blowfish-Óë¸ø¶¨µÄÃÜÔ¿ÄÚÈİÏà¹ØÁªµÄÃÜÔ¿Ëã·¨µÄÃû³Æ
-		SecretKeySpec sksSpec = new SecretKeySpec(key, this.algorithmName);
+    public static final class Aes {
 
-		// ·µ»ØÊµÏÖÖ¸¶¨×ª»»µÄ Cipher ¶ÔÏó
-		Cipher cipher = Cipher.getInstance(transformation);
+        // åˆå§‹åŒ–å‘é‡
+        public static final byte[] InitializationVector            = new byte[16];
 
-		if(initializationVector == null){
-			cipher.init(Cipher.ENCRYPT_MODE, sksSpec);
-		}else{
-			// Ê¹ÓÃ initializationVector ÖĞµÄ×Ö½Ú×÷Îª IV À´¹¹ÔìÒ»¸ö IvParameterSpec ¶ÔÏó
-			AlgorithmParameterSpec iv = new IvParameterSpec(initializationVector);
-			// ÓÃÃÜÔ¿ºÍËæ»úÔ´³õÊ¼»¯´Ë Cipher
-			cipher.init(Cipher.ENCRYPT_MODE, sksSpec, iv);
-		}
+        // è½¬æ¢æ¨¡å¼
+        public static final String Transformation_CBC_PKCS5Padding = "AES/CBC/PKCS5Padding";
 
-		// ¼ÓÃÜ
-		byte[] encrypted = cipher.doFinal(source);
+        // å¯†é’¥ç®—æ³•åç§°
+        public static final String AlgorithmName                   = "AES";
+    }
 
-		return encrypted;
+    private String algorithmName        = null;
+    private String transformation       = null;
+    private byte[] initializationVector = null;
 
-	}
+    public AlgorithmCoder(String algorithmName, String transformation) {
+        this.algorithmName = algorithmName;
+        this.transformation = transformation;
+    }
 
-	public byte[] decode(byte[] encryptedBytes,byte[] key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException,
-			IllegalBlockSizeException, BadPaddingException {
-		SecretKeySpec sksSpec = new SecretKeySpec(key, this.algorithmName);
-		Cipher cipher = Cipher.getInstance(transformation);
+    public AlgorithmCoder(String algorithmName, String transformation, byte[] initVector) {
+        this.algorithmName = algorithmName;
+        this.transformation = transformation;
+        this.initializationVector = initVector;
+    }
 
-		if(initializationVector == null){
-			cipher.init(Cipher.ENCRYPT_MODE, sksSpec);
-		}else{
-			AlgorithmParameterSpec iv = new IvParameterSpec(initializationVector);
-			cipher.init(Cipher.DECRYPT_MODE, sksSpec, iv);
-		}
+    public byte[] encode(byte[] source, byte[] key) throws NoSuchAlgorithmException, NoSuchPaddingException,
+                                                   InvalidKeyException, InvalidAlgorithmParameterException,
+                                                   IllegalBlockSizeException, BadPaddingException {
+        // æ ¹æ®ç»™å®šçš„å­—èŠ‚æ•°ç»„æ„é€ ä¸€ä¸ªå¯†é’¥ Blowfish-ä¸ç»™å®šçš„å¯†é’¥å†…å®¹ç›¸å…³è”çš„å¯†é’¥ç®—æ³•çš„åç§°
+        SecretKeySpec sksSpec = new SecretKeySpec(key, this.algorithmName);
 
-		byte[] decrypted = cipher.doFinal(encryptedBytes);
+        // è¿”å›å®ç°æŒ‡å®šè½¬æ¢çš„ Cipher å¯¹è±¡
+        Cipher cipher = Cipher.getInstance(transformation);
 
-		return decrypted;
-	}
+        if (initializationVector == null) {
+            cipher.init(Cipher.ENCRYPT_MODE, sksSpec);
+        } else {
+            // ä½¿ç”¨ initializationVector ä¸­çš„å­—èŠ‚ä½œä¸º IV æ¥æ„é€ ä¸€ä¸ª IvParameterSpec å¯¹è±¡
+            AlgorithmParameterSpec iv = new IvParameterSpec(initializationVector);
+            // ç”¨å¯†é’¥å’Œéšæœºæºåˆå§‹åŒ–æ­¤ Cipher
+            cipher.init(Cipher.ENCRYPT_MODE, sksSpec, iv);
+        }
 
+        // åŠ å¯†
+        byte[] encrypted = cipher.doFinal(source);
+
+        return encrypted;
+
+    }
+
+    public byte[] decode(byte[] encryptedBytes, byte[] key) throws NoSuchAlgorithmException, NoSuchPaddingException,
+                                                           InvalidKeyException, InvalidAlgorithmParameterException,
+                                                           IllegalBlockSizeException, BadPaddingException {
+        SecretKeySpec sksSpec = new SecretKeySpec(key, this.algorithmName);
+        Cipher cipher = Cipher.getInstance(transformation);
+
+        if (initializationVector == null) {
+            cipher.init(Cipher.ENCRYPT_MODE, sksSpec);
+        } else {
+            AlgorithmParameterSpec iv = new IvParameterSpec(initializationVector);
+            cipher.init(Cipher.DECRYPT_MODE, sksSpec, iv);
+        }
+
+        byte[] decrypted = cipher.doFinal(encryptedBytes);
+        return decrypted;
+    }
 }

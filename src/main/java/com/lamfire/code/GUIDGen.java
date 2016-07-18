@@ -1,15 +1,16 @@
 package com.lamfire.code;
 
-import com.lamfire.utils.MACAddressUtils;
-
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Random;
 
+import com.lamfire.utils.MACAddressUtils;
+
 public class GUIDGen {
-    private static Random myRand;
+
+    private static Random       myRand;
     private static SecureRandom mySecureRand;
-    private static String s_id;
+    private static String       s_id;
 
     static {
         if (System.getProperty("java.security.egd") == null) {
@@ -20,8 +21,7 @@ public class GUIDGen {
         myRand = new Random(secureInitializer);
         try {
             s_id = MACAddressUtils.getMacAddress();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new AssertionError(e);
         }
     }

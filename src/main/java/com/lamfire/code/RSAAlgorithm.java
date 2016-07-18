@@ -1,50 +1,49 @@
 package com.lamfire.code;
 
-import com.lamfire.utils.*;
-
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Random;
 
+import com.lamfire.utils.Asserts;
+import com.lamfire.utils.Bytes;
+import com.lamfire.utils.IOUtils;
+
 /**
- * RSAÀ„∑®
- * 
- * @author lamfire
- * 
+ * RSAÁÆóÊ≥ï
  */
 public class RSAAlgorithm {
-	static final Random random = new SecureRandom();
-    static final byte RSA_BLOCK_FLAG = 0x1;   //RSA øÈ±Í ∂
-    static final int RSA_PADDING_LENGTH = 11;   //RSA √‹ŒƒÕ∑≥§∂»
-    private int keyBitLength = 1024;
-	private BigInteger publicKey;
-	private BigInteger privateKey;
-	private BigInteger modulus;
-    private int blockSize;
 
-	public RSAAlgorithm(int keyBitLength) {
+    static final Random random             = new SecureRandom();
+    static final byte   RSA_BLOCK_FLAG     = 0x1;               // RSA ÂùóÊ†áËØÜ
+    static final int    RSA_PADDING_LENGTH = 11;                // RSA ÂØÜÊñáÂ§¥ÈïøÂ∫¶
+    private int         keyBitLength       = 1024;
+    private BigInteger  publicKey;
+    private BigInteger  privateKey;
+    private BigInteger  modulus;
+    private int         blockSize;
+
+    public RSAAlgorithm(int keyBitLength) {
         setKeyBitLength(keyBitLength);
-	}
-
-	public RSAAlgorithm(int keyBitLength,BigInteger p, BigInteger q, BigInteger e) {
-        setKeyBitLength(keyBitLength);
-		genKey(p, q, e);
-	}
-
-
-    private void assertBlock(byte[] bytes){
-         Asserts.equalsAssert(bytes.length, keyBitLength / 8);
     }
 
+    public RSAAlgorithm(int keyBitLength, BigInteger p, BigInteger q, BigInteger e) {
+        setKeyBitLength(keyBitLength);
+        genKey(p, q, e);
+    }
 
-    public byte[] encode(byte[] source,BigInteger key,BigInteger modulus){
-        int blockSize = this.blockSize - RSA_PADDING_LENGTH;  //RSA_PADDING ÃÓ≥‰£¨“™«Û ‰»Î£∫±ÿ–Î ±» RSA ‘øƒ£≥§(modulus) ∂Ã÷¡…Ÿ11∏ˆ◊÷Ω⁄, “≤æÕ «°°keyBits/8 ®C 11
-        if(source.length <= blockSize){ // ˝æ›Œﬁ–Ë∑÷∂Œ
-            return encodeBlock(source,key, modulus,keyBitLength);
+    private void assertBlock(byte[] bytes) {
+        Asserts.equalsAssert(bytes.length, keyBitLength / 8);
+    }
+
+    public byte[] encode(byte[] source, BigInteger key, BigInteger modulus) {
+        int blockSize = this.blockSize - RSA_PADDING_LENGTH; // RSA_PADDING Â°´ÂÖÖÔºåË¶ÅÊ±ÇËæìÂÖ•ÔºöÂøÖÈ°ª ÊØî RSA Èí•Ê®°Èïø(modulus) Áü≠Ëá≥Â∞ë11‰∏™Â≠óËäÇ,
+                                                             // ‰πüÂ∞±ÊòØ„ÄÄkeyBits/8 ‚Äì 11
+        if (source.length <= blockSize) { // Êï∞ÊçÆÊó†ÈúÄÂàÜÊÆµ
+            return encodeBlock(source, key, modulus, keyBitLength);
         }
 
-        // ∂‘ ˝æ›∑÷∂Œº”√‹
+        // ÂØπÊï∞ÊçÆÂàÜÊÆµÂä†ÂØÜ
         int inputLen = source.length;
         int offSet = 0;
         byte[] cache;
@@ -52,9 +51,9 @@ public class RSAAlgorithm {
         try {
             while (inputLen > offSet) {
                 if (inputLen - offSet > blockSize) {
-                    cache = encodeBlock(source, offSet, blockSize, key, modulus,keyBitLength);
+                    cache = encodeBlock(source, offSet, blockSize, key, modulus, keyBitLength);
                 } else {
-                    cache = encodeBlock(source, offSet, inputLen - offSet, key, modulus,keyBitLength);
+                    cache = encodeBlock(source, offSet, inputLen - offSet, key, modulus, keyBitLength);
                 }
                 assertBlock(cache);
                 out.write(cache, 0, cache.length);
@@ -62,17 +61,17 @@ public class RSAAlgorithm {
             }
             byte[] encryptedData = out.toByteArray();
             return encryptedData;
-         } finally {
+        } finally {
             IOUtils.closeQuietly(out);
         }
     }
 
-    public byte[] decode(byte[] source,BigInteger key,BigInteger modulus){
+    public byte[] decode(byte[] source, BigInteger key, BigInteger modulus) {
         int blockSize = this.blockSize;
-        if(source.length <= blockSize){ // ˝æ›Œﬁ–Ë∑÷∂Œ
-            return decodeBlock(source,key, modulus,keyBitLength);
+        if (source.length <= blockSize) { // Êï∞ÊçÆÊó†ÈúÄÂàÜÊÆµ
+            return decodeBlock(source, key, modulus, keyBitLength);
         }
-        // ∂‘ ˝æ›∑÷∂ŒΩ‚√‹
+        // ÂØπÊï∞ÊçÆÂàÜÊÆµËß£ÂØÜ
         int inputLen = source.length;
         int offSet = 0;
         byte[] cache;
@@ -80,219 +79,223 @@ public class RSAAlgorithm {
         try {
             while (inputLen > offSet) {
                 if (inputLen - offSet > blockSize) {
-                    cache = decodeBlock(source,offSet,blockSize,key,modulus,keyBitLength);
+                    cache = decodeBlock(source, offSet, blockSize, key, modulus, keyBitLength);
                 } else {
-                    cache = decodeBlock(source,offSet,inputLen - offSet,key,modulus,keyBitLength);
+                    cache = decodeBlock(source, offSet, inputLen - offSet, key, modulus, keyBitLength);
                 }
                 out.write(cache, 0, cache.length);
                 offSet += blockSize;
             }
             byte[] decryptedData = out.toByteArray();
             return decryptedData;
-        }finally {
+        } finally {
             IOUtils.closeQuietly(out);
         }
     }
 
-    public void setKeyBitLength(int keyBitLength){
+    public void setKeyBitLength(int keyBitLength) {
         this.keyBitLength = keyBitLength;
         this.blockSize = keyBitLength / 8;
     }
 
-	/**
-	 * ªÒ»°ÀΩ‘ø
-	 * 
-	 * @return
-	 */
-	public BigInteger getPrivateKey() {
-		return this.privateKey;
-	}
+    /**
+     * Ëé∑ÂèñÁßÅÈí•
+     * 
+     * @return
+     */
+    public BigInteger getPrivateKey() {
+        return this.privateKey;
+    }
 
-	/**
-	 * ªÒ»°π´‘ø
-	 * 
-	 * @return
-	 */
-	public BigInteger getPublicKey() {
-		return this.publicKey;
-	}
+    /**
+     * Ëé∑ÂèñÂÖ¨Èí•
+     * 
+     * @return
+     */
+    public BigInteger getPublicKey() {
+        return this.publicKey;
+    }
 
-	/**
-	 * ªÒ»°Modulus
-	 * 
-	 * @return
-	 */
-	public BigInteger getModulus() {
-		return this.modulus;
-	}
+    /**
+     * Ëé∑ÂèñModulus
+     * 
+     * @return
+     */
+    public BigInteger getModulus() {
+        return this.modulus;
+    }
 
-	/**
-	 * ªÒ»°ÀΩ‘ø
-	 * 
-	 * @return
-	 */
-	public String getPrivateKeyAsBase64() {
-		return Base64.encode(this.privateKey.toByteArray());
-	}
+    /**
+     * Ëé∑ÂèñÁßÅÈí•
+     * 
+     * @return
+     */
+    public String getPrivateKeyAsBase64() {
+        return Base64.encode(this.privateKey.toByteArray());
+    }
 
-	/**
-	 * ªÒ»°π´‘ø
-	 * 
-	 * @return
-	 */
-	public String getPublicKeyAsBase64() {
-		return Base64.encode(this.publicKey.toByteArray());
-	}
+    /**
+     * Ëé∑ÂèñÂÖ¨Èí•
+     * 
+     * @return
+     */
+    public String getPublicKeyAsBase64() {
+        return Base64.encode(this.publicKey.toByteArray());
+    }
 
-	/**
-	 * ªÒ»°Modulus
-	 * 
-	 * @return
-	 */
-	public String getModulusAsBase64() {
-		return Base64.encode(this.modulus.toByteArray());
-	}
+    /**
+     * Ëé∑ÂèñModulus
+     * 
+     * @return
+     */
+    public String getModulusAsBase64() {
+        return Base64.encode(this.modulus.toByteArray());
+    }
 
-    public void genKey(){
+    public void genKey() {
         genKey(keyBitLength);
     }
 
-	private void genKey(BigInteger p, BigInteger q, BigInteger e) {
-		// º∆À„£®p-1)*(q-1)
-		BigInteger pq = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
+    private void genKey(BigInteger p, BigInteger q, BigInteger e) {
+        // ËÆ°ÁÆóÔºàp-1)*(q-1)
+        BigInteger pq = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
 
-		// º∆À„ƒ£ ˝p*q
-		BigInteger n = p.multiply(q);
+        // ËÆ°ÁÆóÊ®°Êï∞p*q
+        BigInteger n = p.multiply(q);
 
-		// º∆À„≥ˆd£¨º¥eµƒƒ£nƒÊ
-		BigInteger d = e.modInverse(pq);
+        // ËÆ°ÁÆóÂá∫dÔºåÂç≥eÁöÑÊ®°nÈÄÜ
+        BigInteger d = e.modInverse(pq);
 
-		// π´‘ø
-		this.publicKey = e;
+        // ÂÖ¨Èí•
+        this.publicKey = e;
 
-		// ÀΩ‘ø
-		this.privateKey = d;
+        // ÁßÅÈí•
+        this.privateKey = d;
 
-		// modulus
-		this.modulus = n;
-	}
+        // modulus
+        this.modulus = n;
+    }
 
-	/**
-	 * ≤˙…˙÷∏∂®≥§∂»µƒπ´‘ø∫ÕÀΩ‘ø
-	 * 
-	 * @param
-	 */
+    /**
+     * ‰∫ßÁîüÊåáÂÆöÈïøÂ∫¶ÁöÑÂÖ¨Èí•ÂíåÁßÅÈí•
+     * 
+     * @param
+     */
     private void genKey(int keyBitLength) {
         setKeyBitLength(keyBitLength);
 
-        // ≤˙…˙¡Ω∏ˆ(N/2 - 1)Œªµƒ¥ÛÀÿ ˝p∫Õq
-        BigInteger p = genProbablePrime(keyBitLength / 2 -1);
-        BigInteger q = genProbablePrime(keyBitLength / 2 -1);
+        // ‰∫ßÁîü‰∏§‰∏™(N/2 - 1)‰ΩçÁöÑÂ§ßÁ¥†Êï∞pÂíåq
+        BigInteger p = genProbablePrime(keyBitLength / 2 - 1);
+        BigInteger q = genProbablePrime(keyBitLength / 2 - 1);
 
-        // ÀÊ±„’““ª∏ˆe
-        BigInteger e = genProbablePrime(keyBitLength / 2 -1);
+        // Èöè‰æøÊâæ‰∏Ä‰∏™e
+        BigInteger e = genProbablePrime(keyBitLength / 2 - 1);
 
-        //…˙≥…π´‘ø∫ÕÀΩ‘ø
+        // ÁîüÊàêÂÖ¨Èí•ÂíåÁßÅÈí•
         genKey(p, q, e);
-	}
-
+    }
 
     /**
-     * ÀÊª˙≤˙…˙÷∏∂®Œª ˝µƒÀÿ ˝
+     * ÈöèÊú∫‰∫ßÁîüÊåáÂÆö‰ΩçÊï∞ÁöÑÁ¥†Êï∞
+     * 
      * @param bitLength
      * @return
      */
-    public static BigInteger genProbablePrime(int bitLength){
+    public static BigInteger genProbablePrime(int bitLength) {
         return BigInteger.probablePrime(bitLength, random);
     }
 
-
-    private static byte[] paddingBlock(final byte[] bytes,int blockSize){
-        if(bytes.length > (blockSize - RSA_BLOCK_FLAG)){
+    private static byte[] paddingBlock(final byte[] bytes, int blockSize) {
+        if (bytes.length > (blockSize - RSA_BLOCK_FLAG)) {
             throw new RuntimeException("Message too large");
         }
         byte[] padding = new byte[blockSize];
         padding[0] = RSA_BLOCK_FLAG;
         int crc32 = CRC32.digest(bytes);
-        Bytes.putInt(padding,1,crc32);
+        Bytes.putInt(padding, 1, crc32);
         int len = bytes.length;
-        Bytes.putInt(padding,5,len);
-        Bytes.putBytes(padding,blockSize - len,bytes,0,len);
+        Bytes.putInt(padding, 5, len);
+        Bytes.putBytes(padding, blockSize - len, bytes, 0, len);
         return padding;
     }
 
-    private static byte[] recoveryPaddingBlock(final byte[] bytes,int blockSize){
-        if(bytes [0] != RSA_BLOCK_FLAG){
+    private static byte[] recoveryPaddingBlock(final byte[] bytes, int blockSize) {
+        if (bytes[0] != RSA_BLOCK_FLAG) {
             throw new RuntimeException("Not RSA Block");
         }
-        int crc32 = Bytes.toInt(bytes,1);
-        int len = Bytes.toInt(bytes,5);
-        byte[] data = Bytes.subBytes(bytes,blockSize - len,len);
+        int crc32 = Bytes.toInt(bytes, 1);
+        int len = Bytes.toInt(bytes, 5);
+        byte[] data = Bytes.subBytes(bytes, blockSize - len, len);
         int dataCrc32 = CRC32.digest(data);
-        if(dataCrc32 != crc32){
-            throw new RuntimeException("Block CRC32 checksum failed - [data=" + dataCrc32 +",source=" + crc32 +"]");
+        if (dataCrc32 != crc32) {
+            throw new RuntimeException("Block CRC32 checksum failed - [data=" + dataCrc32 + ",source=" + crc32 + "]");
         }
         return data;
     }
 
-    private static byte[] fillBlock(final byte[] bytes,int blockSize){
+    private static byte[] fillBlock(final byte[] bytes, int blockSize) {
         byte[] result = new byte[blockSize];
         int i = blockSize - bytes.length;
-        Bytes.putBytes(result,i,bytes,0,bytes.length);
+        Bytes.putBytes(result, i, bytes, 0, bytes.length);
         return result;
     }
 
     /**
-     * ±‡¬Î
+     * ÁºñÁ†Å
+     * 
      * @param bytes
      * @param key
      * @param modulus
      * @return
      */
-	protected static byte[] encodeBlock(final byte[] bytes, BigInteger key, BigInteger modulus,int keyBits) {
+    protected static byte[] encodeBlock(final byte[] bytes, BigInteger key, BigInteger modulus, int keyBits) {
         int block = keyBits / 8;
-        byte[] padding = paddingBlock(bytes,block);
+        byte[] padding = paddingBlock(bytes, block);
         BigInteger message = new BigInteger(padding);
-        if(message.compareTo(modulus) > 0){
-              throw new RuntimeException("Max.length(byte[]) of message can be (keyBitLength/8-1),to make sure that M < N.");
+        if (message.compareTo(modulus) > 0) {
+            throw new RuntimeException(
+                                       "Max.length(byte[]) of message can be (keyBitLength/8-1),to make sure that M < N.");
         }
         BigInteger encrypt = message.modPow(key, modulus);
-		byte[] resultBytes =  encrypt.toByteArray();
-        if(resultBytes.length < block){ //fill block
-            resultBytes = fillBlock(resultBytes,block);
+        byte[] resultBytes = encrypt.toByteArray();
+        if (resultBytes.length < block) { // fill block
+            resultBytes = fillBlock(resultBytes, block);
         }
         return resultBytes;
-	}
+    }
 
-    protected static byte[] encodeBlock(final byte[] bytes,int startIndex,int length, BigInteger key, BigInteger modulus,int keyBits) {
+    protected static byte[] encodeBlock(final byte[] bytes, int startIndex, int length, BigInteger key,
+                                        BigInteger modulus, int keyBits) {
         byte[] source = bytes;
-        if(bytes.length != length || startIndex != 0){
-            source = Bytes.subBytes(bytes,startIndex,length);
+        if (bytes.length != length || startIndex != 0) {
+            source = Bytes.subBytes(bytes, startIndex, length);
         }
-        return encodeBlock(source,key,modulus,keyBits);
+        return encodeBlock(source, key, modulus, keyBits);
     }
 
     /**
-     * Ω‚¬Î
+     * Ëß£Á†Å
+     * 
      * @param bytes
      * @param key
      * @param modulus
      * @return
      */
-    protected static byte[] decodeBlock(byte[] bytes, BigInteger key, BigInteger modulus,int keyBits) {
+    protected static byte[] decodeBlock(byte[] bytes, BigInteger key, BigInteger modulus, int keyBits) {
         BigInteger cipherMessage = new BigInteger(bytes);
         BigInteger sourceMessage = cipherMessage.modPow(key, modulus);
-		byte[] decodeBytes =  sourceMessage.toByteArray();
-        byte[] resultBytes = recoveryPaddingBlock(decodeBytes,keyBits / 8);
+        byte[] decodeBytes = sourceMessage.toByteArray();
+        byte[] resultBytes = recoveryPaddingBlock(decodeBytes, keyBits / 8);
         return resultBytes;
-	}
+    }
 
-    protected static byte[] decodeBlock(final byte[] bytes,int startIndex,int length, BigInteger key, BigInteger modulus,int keyBits) {
+    protected static byte[] decodeBlock(final byte[] bytes, int startIndex, int length, BigInteger key,
+                                        BigInteger modulus, int keyBits) {
         byte[] source = bytes;
-        if(bytes.length != length || startIndex != 0){
-            source = Bytes.subBytes(bytes,startIndex,length);
+        if (bytes.length != length || startIndex != 0) {
+            source = Bytes.subBytes(bytes, startIndex, length);
         }
-        return decodeBlock(source, key, modulus,keyBits);
+        return decodeBlock(source, key, modulus, keyBits);
     }
 
 }
