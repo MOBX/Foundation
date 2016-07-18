@@ -8,6 +8,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class SqlDateDeserializer implements ObjectDeserializer {
+
     public final static SqlDateDeserializer instance = new SqlDateDeserializer();
 
     @SuppressWarnings("unchecked")
@@ -16,7 +17,7 @@ public class SqlDateDeserializer implements ObjectDeserializer {
         if (val == null) {
             return null;
         }
-        
+
         if (val instanceof Date) {
             val = new java.sql.Date(((Date) val).getTime());
         } else if (val instanceof Number) {
@@ -26,7 +27,7 @@ public class SqlDateDeserializer implements ObjectDeserializer {
             if (strVal.length() == 0) {
                 return null;
             }
-            
+
             long longVal = Long.parseLong(strVal);
             return (T) new java.sql.Date(longVal);
         } else {

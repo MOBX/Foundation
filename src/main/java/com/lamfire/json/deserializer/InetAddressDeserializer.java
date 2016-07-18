@@ -20,7 +20,7 @@ public class InetAddressDeserializer implements ObjectDeserializer {
         if (host == null) {
             return null;
         }
-        
+
         if (host.length() == 0) {
             return null;
         }
@@ -31,7 +31,7 @@ public class InetAddressDeserializer implements ObjectDeserializer {
             throw new JSONException("deserialize error", e);
         }
     }
-    
+
     public int getFastMatchToken() {
         return JSONToken.LITERAL_STRING;
     }

@@ -8,6 +8,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class ConcurrentHashMapDeserializer implements ObjectDeserializer {
+
     public final static ConcurrentHashMapDeserializer instance = new ConcurrentHashMapDeserializer();
 
     @SuppressWarnings("unchecked")

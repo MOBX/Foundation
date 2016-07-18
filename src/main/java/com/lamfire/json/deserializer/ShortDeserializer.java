@@ -7,6 +7,7 @@ import com.lamfire.json.parser.JSONToken;
 import com.lamfire.json.util.TypeConverters;
 
 public class ShortDeserializer implements ObjectDeserializer {
+
     public final static ShortDeserializer instance = new ShortDeserializer();
 
     @SuppressWarnings("unchecked")
@@ -16,7 +17,7 @@ public class ShortDeserializer implements ObjectDeserializer {
         if (value == null) {
             return null;
         }
-        
+
         return (T) TypeConverters.castToShort(value);
     }
 

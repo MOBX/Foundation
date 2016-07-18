@@ -14,7 +14,7 @@ public class StringDeserializer implements ObjectDeserializer {
     public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
         return (T) deserialze(parser);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultExtJSONParser parser) {
         final JSONLexer lexer = parser.getLexer();
@@ -23,7 +23,7 @@ public class StringDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             return (T) val;
         }
-        
+
         if (lexer.token() == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);

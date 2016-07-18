@@ -1,15 +1,12 @@
 package com.lamfire.json.deserializer;
 
-import com.lamfire.json.parser.DefaultExtJSONParser;
-import com.lamfire.json.parser.JSONLexer;
-import com.lamfire.json.parser.JSONToken;
-import com.lamfire.json.parser.ParserConfig;
+import com.lamfire.json.parser.*;
 import com.lamfire.json.util.FieldInfo;
 import com.lamfire.json.util.TypeConverters;
 
 public class IntegerFieldDeserializer extends FieldDeserializer {
 
-    public IntegerFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
+    public IntegerFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         super(clazz, fieldInfo);
     }
 

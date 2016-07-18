@@ -15,7 +15,7 @@ public class SetTypeFieldDeserializer extends FieldDeserializer {
     private int                itemFastMatchToken;
     private ObjectDeserializer deserializer;
 
-    public SetTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
+    public SetTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         super(clazz, fieldInfo);
 
         this.itemType = ((ParameterizedType) getFieldType()).getActualTypeArguments()[0];
@@ -34,16 +34,15 @@ public class SetTypeFieldDeserializer extends FieldDeserializer {
         }
 
         Set set = null;
-        if(super.getFieldClass() == TreeSet.class){
+        if (super.getFieldClass() == TreeSet.class) {
             set = new TreeSet();
-        }else{
+        } else {
             set = new HashSet();
         }
         parseArray(parser, set);
 
         setValue(object, set);
     }
-
 
     public final void parseArray(DefaultExtJSONParser parser, Collection array) {
         final JSONLexer lexer = parser.getLexer();

@@ -18,7 +18,7 @@ public class EnumDeserializer implements ObjectDeserializer {
     private final Map<Integer, Enum> ordinalMap = new HashMap<Integer, Enum>();
     private final Map<String, Enum>  nameMap    = new HashMap<String, Enum>();
 
-    public EnumDeserializer(Class<?> enumClass){
+    public EnumDeserializer(Class<?> enumClass) {
         this.enumClass = enumClass;
 
         try {
@@ -33,7 +33,7 @@ public class EnumDeserializer implements ObjectDeserializer {
             throw new JSONException("init enum values error, " + enumClass.getName());
         }
     }
- 
+
     public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
         try {
             Object value;

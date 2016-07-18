@@ -7,6 +7,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class JSONArrayDeserializer implements ObjectDeserializer {
+
     public final static JSONArrayDeserializer instance = new JSONArrayDeserializer();
 
     @SuppressWarnings("unchecked")

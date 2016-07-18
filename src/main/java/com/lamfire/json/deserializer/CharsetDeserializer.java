@@ -7,6 +7,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class CharsetDeserializer implements ObjectDeserializer {
+
     public final static CharsetDeserializer instance = new CharsetDeserializer();
 
     @SuppressWarnings("unchecked")
@@ -16,9 +17,9 @@ public class CharsetDeserializer implements ObjectDeserializer {
         if (value == null) {
             return null;
         }
-        
+
         String charset = (String) value;
-        
+
         return (T) Charset.forName(charset);
     }
 

@@ -7,6 +7,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class FileDeserializer implements ObjectDeserializer {
+
     public final static FileDeserializer instance = new FileDeserializer();
 
     @SuppressWarnings("unchecked")
@@ -16,9 +17,9 @@ public class FileDeserializer implements ObjectDeserializer {
         if (value == null) {
             return null;
         }
-        
+
         String path = (String) value;
-        
+
         return (T) new File(path);
     }
 

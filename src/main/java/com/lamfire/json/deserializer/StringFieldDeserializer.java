@@ -1,16 +1,13 @@
 package com.lamfire.json.deserializer;
 
-import com.lamfire.json.parser.DefaultExtJSONParser;
-import com.lamfire.json.parser.JSONLexer;
-import com.lamfire.json.parser.JSONToken;
-import com.lamfire.json.parser.ParserConfig;
+import com.lamfire.json.parser.*;
 import com.lamfire.json.util.FieldInfo;
 
 public class StringFieldDeserializer extends FieldDeserializer {
 
     private final ObjectDeserializer fieldValueDeserilizer;
 
-    public StringFieldDeserializer(ParserConfig config, Class<?> clazz, FieldInfo fieldInfo){
+    public StringFieldDeserializer(ParserConfig config, Class<?> clazz, FieldInfo fieldInfo) {
         super(clazz, fieldInfo);
 
         fieldValueDeserilizer = config.getDeserializer(fieldInfo);

@@ -8,6 +8,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class LinkedHashMapDeserializer implements ObjectDeserializer {
+
     public final static LinkedHashMapDeserializer instance = new LinkedHashMapDeserializer();
 
     @SuppressWarnings("unchecked")

@@ -19,7 +19,7 @@ public class HashMapDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
-        
+
         Map<String, Object> map = new HashMap<String, Object>();
         parser.parseObject(map);
         return (T) map;

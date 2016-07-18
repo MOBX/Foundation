@@ -9,7 +9,7 @@ import com.lamfire.json.util.FieldInfo;
 
 public class ArrayListStringFieldDeserializer extends FieldDeserializer {
 
-    public ArrayListStringFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
+    public ArrayListStringFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         super(clazz, fieldInfo);
 
     }

@@ -6,6 +6,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class JSONObjectDeserializer implements ObjectDeserializer {
+
     public final static JSONObjectDeserializer instance = new JSONObjectDeserializer();
 
     @SuppressWarnings("unchecked")

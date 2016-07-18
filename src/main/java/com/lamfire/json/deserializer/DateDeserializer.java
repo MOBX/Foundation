@@ -28,7 +28,7 @@ public class DateDeserializer implements ObjectDeserializer {
             if (strVal.length() == 0) {
                 return null;
             }
-            
+
             JSONScanner dateLexer = new JSONScanner(strVal);
             if (dateLexer.scanISO8601DateIfMatch()) {
                 return (T) dateLexer.getCalendar().getTime();
@@ -37,7 +37,7 @@ public class DateDeserializer implements ObjectDeserializer {
             long longVal = Long.parseLong(strVal);
             return (T) new java.util.Date(longVal);
         }
-        
+
         throw new JSONException("parse error");
     }
 

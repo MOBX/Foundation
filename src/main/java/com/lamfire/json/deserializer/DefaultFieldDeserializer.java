@@ -9,7 +9,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
 
     private ObjectDeserializer fieldValueDeserilizer;
 
-    public DefaultFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
+    public DefaultFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         super(clazz, fieldInfo);
     }
 
@@ -25,9 +25,9 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
 
     public int getFastMatchToken() {
         if (fieldValueDeserilizer != null) {
-            return fieldValueDeserilizer.getFastMatchToken();    
+            return fieldValueDeserilizer.getFastMatchToken();
         }
-        
+
         return JSONToken.LITERAL_INT;
     }
 }

@@ -1,9 +1,6 @@
 package com.lamfire.json.deserializer;
 
-import com.lamfire.json.parser.DefaultExtJSONParser;
-import com.lamfire.json.parser.JSONLexer;
-import com.lamfire.json.parser.JSONToken;
-import com.lamfire.json.parser.ParserConfig;
+import com.lamfire.json.parser.*;
 import com.lamfire.json.util.FieldInfo;
 import com.lamfire.json.util.TypeConverters;
 
@@ -11,7 +8,7 @@ public class LongFieldDeserializer extends FieldDeserializer {
 
     private final ObjectDeserializer fieldValueDeserilizer;
 
-    public LongFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
+    public LongFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         super(clazz, fieldInfo);
 
         fieldValueDeserilizer = mapping.getDeserializer(fieldInfo);
@@ -20,7 +17,7 @@ public class LongFieldDeserializer extends FieldDeserializer {
     @Override
     public void parseField(DefaultExtJSONParser parser, Object object) {
         Long value;
-        
+
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.LITERAL_INT) {
             long val = lexer.longValue();
@@ -30,18 +27,18 @@ public class LongFieldDeserializer extends FieldDeserializer {
         } else if (lexer.token() == JSONToken.NULL) {
             value = null;
             lexer.nextToken(JSONToken.COMMA);
- 
+
         } else {
             Object obj = parser.parse();
 
             value = TypeConverters.castToLong(obj);
         }
-        
+
         if (value == null && getFieldClass() == long.class) {
             // skip
             return;
         }
-        
+
         setValue(object, value);
     }
 

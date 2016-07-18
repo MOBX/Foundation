@@ -14,7 +14,7 @@ public class TimestampDeserializer implements ObjectDeserializer {
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
         Object val = parser.parse();
-        
+
         if (val == null) {
             return null;
         }

@@ -7,6 +7,7 @@ import com.lamfire.json.parser.JSONToken;
 import com.lamfire.json.util.TypeConverters;
 
 public class CharacterDeserializer implements ObjectDeserializer {
+
     public final static CharacterDeserializer instance = new CharacterDeserializer();
 
     @SuppressWarnings("unchecked")
@@ -16,7 +17,7 @@ public class CharacterDeserializer implements ObjectDeserializer {
         if (value == null) {
             return null;
         }
-        
+
         return (T) TypeConverters.castToChar(value);
     }
 

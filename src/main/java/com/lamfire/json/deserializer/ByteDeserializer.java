@@ -7,6 +7,7 @@ import com.lamfire.json.parser.JSONToken;
 import com.lamfire.json.util.TypeConverters;
 
 public class ByteDeserializer implements ObjectDeserializer {
+
     public final static ByteDeserializer instance = new ByteDeserializer();
 
     @SuppressWarnings("unchecked")
@@ -16,7 +17,7 @@ public class ByteDeserializer implements ObjectDeserializer {
         if (value == null) {
             return null;
         }
-        
+
         return (T) TypeConverters.castToByte(value);
     }
 

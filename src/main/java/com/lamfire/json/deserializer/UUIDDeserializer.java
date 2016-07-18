@@ -7,17 +7,18 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class UUIDDeserializer implements ObjectDeserializer {
+
     public final static UUIDDeserializer instance = new UUIDDeserializer();
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
-        
+
         String name = (String) parser.parse();
-        
+
         if (name == null) {
             return null;
         }
-        
+
         return (T) UUID.fromString(name);
     }
 

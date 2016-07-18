@@ -23,9 +23,9 @@ public class NumberDeserializer implements ObjectDeserializer {
         if (lexer.token() == JSONToken.LITERAL_INT) {
             long val = lexer.longValue();
             lexer.nextToken(JSONToken.COMMA);
-            
+
             if (val >= Integer.MIN_VALUE && val <= Integer.MAX_VALUE) {
-                return (T) Integer.valueOf((int) val);    
+                return (T) Integer.valueOf((int) val);
             }
             return (T) Long.valueOf(val);
         }

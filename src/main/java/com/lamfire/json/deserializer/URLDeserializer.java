@@ -9,17 +9,18 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class URLDeserializer implements ObjectDeserializer {
+
     public final static URLDeserializer instance = new URLDeserializer();
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
-        
+
         String url = (String) parser.parse();
-        
+
         if (url == null) {
             return null;
         }
-        
+
         try {
             return (T) new URL(url);
         } catch (MalformedURLException e) {

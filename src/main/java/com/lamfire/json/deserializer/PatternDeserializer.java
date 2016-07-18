@@ -7,6 +7,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class PatternDeserializer implements ObjectDeserializer {
+
     public final static PatternDeserializer instance = new PatternDeserializer();
 
     @SuppressWarnings("unchecked")
@@ -16,9 +17,9 @@ public class PatternDeserializer implements ObjectDeserializer {
         if (value == null) {
             return null;
         }
-        
+
         String pattern = (String) value;
-        
+
         return (T) Pattern.compile(pattern);
     }
 

@@ -9,7 +9,7 @@ import com.lamfire.json.util.TypeConverters;
 
 public class ThrowableDeserializer extends JavaBeanDeserializer {
 
-    public ThrowableDeserializer(ParserConfig mapping, Class<?> clazz){
+    public ThrowableDeserializer(ParserConfig mapping, Class<?> clazz) {
         super(mapping, clazz);
     }
 

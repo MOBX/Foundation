@@ -22,23 +22,23 @@ public class ArrayDeserializer implements ObjectDeserializer {
 
         JSONArray array = new JSONArray();
         parser.parseArray(array);
-        
-        if(clazz instanceof GenericArrayType){
-			Type componentType = ((GenericArrayType) clazz).getGenericComponentType();
-        	return toObjectArray(parser, (Class<T>) componentType, array);
-		}
+
+        if (clazz instanceof GenericArrayType) {
+            Type componentType = ((GenericArrayType) clazz).getGenericComponentType();
+            return toObjectArray(parser, (Class<T>) componentType, array);
+        }
 
         Class<T> arrayType = ((Class<T>) clazz);
-        
+
         Type componentType = null;
-        if(arrayType == null){
-        	componentType = (Type)byte.class;
-        }else{
-        	componentType = arrayType.getComponentType();
+        if (arrayType == null) {
+            componentType = (Type) byte.class;
+        } else {
+            componentType = arrayType.getComponentType();
         }
-        return toObjectArray(parser, (Class<T>)componentType, array);
+        return toObjectArray(parser, (Class<T>) componentType, array);
     }
-    
+
     @SuppressWarnings("unchecked")
     private <T> T toObjectArray(DefaultExtJSONParser parser, Class<T> componentType, JSONArray array) {
         int size = array.size();

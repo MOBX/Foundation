@@ -1,21 +1,10 @@
 package com.lamfire.json.deserializer;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 import com.lamfire.json.JSONException;
-import com.lamfire.json.parser.DefaultExtJSONParser;
-import com.lamfire.json.parser.Feature;
-import com.lamfire.json.parser.JSONScanner;
-import com.lamfire.json.parser.JSONToken;
-import com.lamfire.json.parser.ParserConfig;
+import com.lamfire.json.parser.*;
 import com.lamfire.json.util.FieldInfo;
 import com.lamfire.json.util.JSONField;
 
@@ -33,7 +22,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return setters;
     }
 
-    public JavaBeanDeserializer(ParserConfig mapping, Class<?> clazz){
+    public JavaBeanDeserializer(ParserConfig mapping, Class<?> clazz) {
         this.clazz = clazz;
 
         if (!Modifier.isAbstract(clazz.getModifiers())) {

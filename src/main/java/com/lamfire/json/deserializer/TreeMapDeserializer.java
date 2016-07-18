@@ -8,6 +8,7 @@ import com.lamfire.json.parser.DefaultExtJSONParser;
 import com.lamfire.json.parser.JSONToken;
 
 public class TreeMapDeserializer implements ObjectDeserializer {
+
     public final static TreeMapDeserializer instance = new TreeMapDeserializer();
 
     @SuppressWarnings("unchecked")
